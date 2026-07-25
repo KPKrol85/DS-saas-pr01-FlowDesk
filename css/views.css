@@ -34,7 +34,7 @@
 }
 
 .view-header__title {
-  font-size: var(--fs-28);
+  font-size: var(--fs-24);
   font-weight: var(--fw-bold);
   line-height: 1.2;
   margin: 0;
@@ -42,7 +42,7 @@
 
 .view-header__desc {
   color: var(--text-muted);
-  font-size: var(--fs-14);
+  font-size: var(--fs-13);
   line-height: 1.45;
   margin: 0;
 }
@@ -170,11 +170,25 @@
 
 @media (max-width: 30rem) {
   .dashboard-kpi {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-12);
   }
 
   .dashboard-kpi__card {
-    min-height: 7.5rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: none;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-12);
+    min-height: 0;
+  }
+
+  .dashboard-kpi__card .kpi__value {
+    align-self: center;
+  }
+
+  .dashboard-kpi__hint {
+    display: none;
   }
 
   .dashboard-list__item {
@@ -983,7 +997,7 @@
 @media (max-width: 63.99rem) {
   .login {
     grid-template-columns: 1fr;
-        grid-template-areas:
+    grid-template-areas:
       'auth'
       'product';
   }
