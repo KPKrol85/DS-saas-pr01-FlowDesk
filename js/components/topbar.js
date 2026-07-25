@@ -43,7 +43,7 @@ export const renderTopbar = (theme = 'light') => {
           <button class="btn btn--secondary topbar__quick-add" id="quickAdd" aria-label="Nowy">${icon('plus')}</button>
           ${renderThemeToggle(theme)}
           <div class="user-menu">
-            <button class="btn btn--icon" id="userMenuBtn" aria-label="Otwórz menu użytkownika" aria-haspopup="true" aria-expanded="false">
+            <button class="btn btn--icon user-menu__trigger" id="userMenuBtn" aria-label="Otwórz menu użytkownika" aria-haspopup="true" aria-expanded="false">
               <span class="avatar" aria-hidden="true">${icon('user', { size: 18 })}</span>
             </button>
             <div class="user-menu__panel" id="userMenuPanel" role="menu">
