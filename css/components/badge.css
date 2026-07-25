@@ -1,14 +1,18 @@
 .badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-10);
-  border: 1px solid currentcolor;
+  padding: var(--space-6) var(--space-10);
+  border: none;
   border-radius: var(--radius-pill);
   font-size: var(--fs-12);
   font-weight: var(--fw-semibold);
   line-height: 1.2;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   text-align: center;
+  white-space: normal;
 }
 
 .badge--success {

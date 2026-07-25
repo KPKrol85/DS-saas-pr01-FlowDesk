@@ -48,6 +48,25 @@ test('login theme toggle synchronizes persisted preference with dashboard', asyn
     contentType: 'image/png'
   });
 });
+test('dashboard badges keep shared visual treatment across themes and viewport sizes', async ({ page }) => {
+  await resetBrowserState(page);
+  await loginDemoUser(page);
+
+  const badges = page.locator('.dashboard-list .badge');
+  await expect(badges.first()).toBeVisible();
+  await expect(page.locator('.dashboard-list .badge--danger').first()).toBeVisible();
+  await expect(page.locator('.dashboard-list .badge--info').first()).toBeVisible();
+  await expect(page.locator('.dashboard-list .badge--warning').first()).toBeVisible();
+  await expect(badges.first()).toHaveCSS('border-top-width', '0px');
+  await expect(badges.first()).toHaveCSS('gap', '4px');
+
+  await page.getByRole('button', { name: 'Włącz ciemny motyw' }).click();
+  await expect(page.locator('body')).toHaveClass(/theme-dark/);
+  await expect(badges.first()).toHaveCSS('border-top-width', '0px');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+});
 for (const view of protectedViews) {
   test(`${view.name} layout renders core landmarks`, async ({ page }, testInfo) => {
     await resetBrowserState(page);

@@ -117,15 +117,6 @@
   min-width: 0;
 }
 
-.data-badges .badge,
-.data-tags .badge,
-.data-list__side .badge,
-.data-cell--badges .badge {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
 .data-count {
   align-items: center;
   background: var(--bg);

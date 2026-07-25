@@ -114,7 +114,7 @@
 
 .dashboard-card--priority .dashboard-list__item,
 .dashboard-card--events .dashboard-list__item {
-  gap: var(--space-8);
+  gap: var(--space-16);
   padding-block: var(--space-16);
 }
 
@@ -128,16 +128,12 @@
 
 .dashboard-list__badges {
   display: flex;
-  flex: 0 0 auto;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-6);
-  justify-content: flex-end;
-  max-width: 48%;
-}
-
-.dashboard-list__badges .badge {
-  max-width: 100%;
-  white-space: normal;
+  justify-content: flex-start;
+  justify-self: stretch;
+  max-width: none;
 }
 
 .dashboard-card .empty-state {
@@ -202,10 +198,5 @@
 
   .dashboard-list__item {
     align-items: stretch;
-  }
-
-  .dashboard-list__badges {
-    justify-content: flex-start;
-    max-width: none;
   }
 }
