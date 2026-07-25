@@ -187,8 +187,8 @@
 .login__theme-toggle {
   position: absolute;
   z-index: 1;
-  top: var(--space-24);
-  right: var(--space-48);
+  top: var(--space-16);
+  right: var(--space-16);
 }
 
 .login__card {
@@ -253,12 +253,7 @@
   }
 
   .login__auth {
-    padding: var(--space-32) var(--space-24);
-  }
-
-  .login__theme-toggle {
-    top: var(--space-4);
-    right: var(--space-24);
+    padding: var(--space-64) var(--space-24);
   }
 }
 
@@ -289,11 +284,7 @@
   }
 
   .login__auth {
-    padding: var(--space-24) var(--space-16) var(--space-32);
-  }
-
-  .login__theme-toggle {
-    right: var(--space-16);
+    padding: var(--space-64) var(--space-16) var(--space-32);
   }
 
   .login__card {
@@ -316,7 +307,7 @@
   }
 
   .login__auth {
-    padding-block: var(--space-20) var(--space-24);
+    padding-block: var(--space-64) var(--space-24);
   }
 
   .login__card {
