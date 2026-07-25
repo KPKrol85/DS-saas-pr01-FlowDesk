@@ -752,6 +752,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(24rem, 0.92fr);
+  grid-template-areas: 'product auth';
   overflow-x: clip;
   background: var(--bg);
 }
@@ -760,6 +761,7 @@
   position: relative;
   isolation: isolate;
   display: grid;
+  grid-area: product;
   align-content: space-between;
   gap: var(--space-48);
   overflow: hidden;
@@ -823,6 +825,7 @@
 
 .login__eyebrow {
   margin: 0;
+  margin-bottom: var(--space-6);
   color: var(--text-muted);
   font-size: var(--fs-12);
   font-weight: var(--fw-semibold);
@@ -922,6 +925,7 @@
 .login__auth {
   position: relative;
   display: grid;
+  grid-area: auth;
   align-items: center;
   min-width: 0;
   padding: var(--space-48);
@@ -977,6 +981,9 @@
 @media (max-width: 63.99rem) {
   .login {
     grid-template-columns: 1fr;
+        grid-template-areas:
+      'auth'
+      'product';
   }
 
   .login__product {

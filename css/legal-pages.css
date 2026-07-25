@@ -55,38 +55,6 @@
   gap: var(--space-12);
 }
 
-.legal-theme-toggle {
-  display: inline-grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  place-items: center;
-  color: var(--text);
-  background: var(--bg-elev);
-  cursor: pointer;
-}
-
-.legal-theme-toggle:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--state-hover);
-}
-
-.legal-theme-toggle:active {
-  background: var(--state-active);
-}
-
-.legal-theme-toggle:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.legal-theme-toggle__icon {
-  display: block;
-}
-
 .legal-main {
   padding-block: var(--space-48) var(--space-64);
 }
@@ -330,10 +298,6 @@
   .legal-theme-toggle:focus-visible {
     outline: 3px solid var(--focus-ring);
     outline-offset: 2px;
-  }
-
-  .legal-theme-toggle__icon {
-    display: block;
   }
 
   .legal-document {
