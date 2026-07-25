@@ -1,9 +1,10 @@
 import { store } from '../core/store.js';
-import { selectDashboardMetrics, selectHighPriorityOpenProjects, selectNextActions, selectUpcomingEvents } from '../core/selectors.js';
+import { isProjectOverdue, selectDashboardMetrics, selectHighPriorityOpenProjects, selectNextActions, selectUpcomingEvents } from '../core/selectors.js';
 import { emptyState } from '../components/emptyState.js';
+import { icon } from '../components/icon.js';
 import { pageHeader } from '../components/pageHeader.js';
 import { formatDate, formatNumber } from '../utils/format.js';
-import { escapeHTML } from '../utils/sanitize.js';
+import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
 
 const priorityLabels = {
   High: 'Wysoki priorytet',
@@ -13,12 +14,13 @@ const priorityLabels = {
 
 const formatPriorityLabel = (priority) => priorityLabels[priority] || priority;
 
-const isPastDue = (value, referenceDate = new Date()) => {
-  const dueDate = new Date(value);
-  return !Number.isNaN(dueDate.getTime()) && dueDate.getTime() < referenceDate.getTime();
-};
+const overdueBadge = (isOverdue) => (isOverdue ? `<span class="badge badge--danger">${icon('alert', { size: 12 })}Po terminie</span>` : '');
 
-const overdueBadge = (item, referenceDate) => (isPastDue(item.dueDate, referenceDate) ? '<span class="badge badge--danger">Po terminie</span>' : '');
+const nextActionModifierClass = (isOverdue, isHighPriority) => {
+  if (isOverdue) return ' dashboard-list__item--overdue';
+  if (isHighPriority) return ' dashboard-list__item--attention';
+  return '';
+};
 
 export const renderDashboardView = (container) => {
   const state = store.getState();
@@ -63,20 +65,27 @@ export const renderDashboardView = (container) => {
               ${
                 nextActions.length
                   ? nextActions
-                      .map(
-                        (item) => `
-                    <div class="list__item dashboard-list__item">
+                      .map((item) => {
+                        const overdue = isProjectOverdue(item, referenceDate);
+                        const highPriority = !overdue && item.priority === 'High';
+                        const href = `#/projects/${encodeURIComponent(item.id)}`;
+
+                        return `
+                    <div class="list__item dashboard-list__item${nextActionModifierClass(overdue, highPriority)}">
                       <div class="dashboard-list__main">
-                        <a class="dashboard-list__link" href="#/projects/${encodeURIComponent(item.id)}"><strong>${escapeHTML(item.name)}</strong></a>
-                        <div class="input__helper dashboard-list__meta">Termin: ${escapeHTML(formatDate(item.dueDate))}</div>
+                        <a class="dashboard-list__link" href="${href}"><strong>${escapeHTML(item.name)}</strong></a>
+                        <div class="dashboard-list__footer">
+                          <span class="input__helper dashboard-list__meta">Termin: ${escapeHTML(formatDate(item.dueDate))}</span>
+                          <div class="dashboard-list__badge-group">
+                            ${overdueBadge(overdue)}
+                            <span class="badge badge--info">${escapeHTML(item.status)}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div class="dashboard-list__badges">
-                        ${overdueBadge(item, referenceDate)}
-                        <span class="badge badge--info">${escapeHTML(item.status)}</span>
-                      </div>
+                      <a class="btn btn--ghost dashboard-list__action" href="${href}" aria-label="Szczegóły zlecenia: ${escapeAttribute(item.name)}">Szczegóły</a>
                     </div>
-                  `
-                      )
+                  `;
+                      })
                       .join('')
                   : emptyState({
                       title: 'Brak zaplanowanych działań',
@@ -101,7 +110,7 @@ export const renderDashboardView = (container) => {
                         <div class="input__helper dashboard-list__meta">Termin: ${escapeHTML(formatDate(item.dueDate))}</div>
                       </div>
                       <div class="dashboard-list__badges">
-                        ${overdueBadge(item, referenceDate)}
+                        ${overdueBadge(isProjectOverdue(item, referenceDate))}
                         <span class="badge badge--warning">${escapeHTML(formatPriorityLabel(item.priority))}</span>
                       </div>
                     </div>

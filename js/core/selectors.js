@@ -110,13 +110,12 @@ export const selectCompletedProjects = (state) => selectActiveProjectRecords(sta
 
 export const selectHighPriorityOpenProjects = (state) => selectActiveProjects(state).filter((project) => project.priority === 'High');
 
-export const selectOverdueProjects = (state, referenceDate = new Date()) => {
-  const referenceTime = referenceDate.getTime();
-  return selectActiveProjects(state).filter((project) => {
-    const dueDate = toValidDate(project.dueDate);
-    return dueDate ? dueDate.getTime() < referenceTime : false;
-  });
+export const isProjectOverdue = (project, referenceDate = new Date()) => {
+  const dueDate = toValidDate(project?.dueDate);
+  return dueDate ? dueDate.getTime() < referenceDate.getTime() : false;
 };
+
+export const selectOverdueProjects = (state, referenceDate = new Date()) => selectActiveProjects(state).filter((project) => isProjectOverdue(project, referenceDate));
 
 export const selectThroughputProjects = (state, referenceDate = new Date(), days = 30) => {
   const periodStart = addDays(startOfDay(referenceDate), -days).getTime();
