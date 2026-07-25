@@ -24,6 +24,7 @@ const renderThemeToggle = (theme) => {
   return `<button class="btn btn--icon" id="themeToggle" aria-label="${label}">${renderThemeToggleIcon(iconName)}</button>`;
 };
 
+
 export const renderTopbar = (theme = 'light') => {
   const session = auth.getSession();
   return `
@@ -39,7 +40,7 @@ export const renderTopbar = (theme = 'light') => {
           <div class="search__results" id="searchResults" role="region" aria-label="Wyniki wyszukiwania" hidden></div>
         </div>
         <div class="topbar__actions">
-          <button class="btn btn--secondary" id="quickAdd">${icon('plus')}<span>Nowy</span></button>
+          <button class="btn btn--secondary topbar__quick-add" id="quickAdd" aria-label="Nowy">${icon('plus')}</button>
           ${renderThemeToggle(theme)}
           <div class="user-menu">
             <button class="btn btn--icon" id="userMenuBtn" aria-label="Otwórz menu użytkownika" aria-haspopup="true" aria-expanded="false">

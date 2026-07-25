@@ -216,7 +216,7 @@ Eksport tworzy lokalny plik JSON. Import wymaga pełnego schematu, sprawdza reko
 
 ### Project Overview
 
-FlowDesk is a frontend SPA that demonstrates a Service Management Dashboard for small service teams. The project covers clients, service jobs, events, and basic operational metrics in a static SaaS-style interface built with HTML, CSS, and Vanilla JavaScript ES Modules.
+FlowDesk is a frontend SPA that demonstrates a Service Management Dashboard for small service teams. The project covers clients, projects, events, and basic operational metrics in a static SaaS-style interface built with HTML, CSS, and Vanilla JavaScript ES Modules. In FlowDesk, a project represents a service job or service order managed for a client.
 
 The application runs entirely in the browser. Authentication is demo-only, and data is persisted locally through `localStorage` behind repository boundaries. The repository has no backend, external database, production authentication, live API, billing, or cloud synchronization.
 

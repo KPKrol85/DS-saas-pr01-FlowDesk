@@ -561,6 +561,13 @@
   gap: var(--space-8);
 }
 
+.topbar__quick-add {
+  inline-size: 44px;
+  block-size: 44px;
+  flex: 0 0 auto;
+  padding: 0;
+}
+
 .avatar {
   width: 32px;
   height: 32px;

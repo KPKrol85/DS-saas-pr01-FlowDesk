@@ -3,6 +3,14 @@ import { escapeAttribute } from '../utils/sanitize.js';
 const icons = Object.freeze({
   dashboard: '<path d="M4 13h6V4H4v9Z"></path><path d="M14 20h6V4h-6v16Z"></path><path d="M4 20h6v-3H4v3Z"></path>',
   clients: '<path d="M16 11a4 4 0 1 0-8 0"></path><path d="M4 20a8 8 0 0 1 16 0"></path><path d="M18 8a3 3 0 0 1 3 3"></path>',
+
+
+
+
+
+
+
+
   projects: '<path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path><path d="M8 5v14"></path><path d="M16 5v14"></path>',
   calendar: '<path d="M7 3v4"></path><path d="M17 3v4"></path><path d="M4 8h16"></path><rect x="4" y="5" width="16" height="16" rx="2"></rect>',
   settings:
