@@ -68,6 +68,17 @@ textarea {
   font-family: var(--font-sans);
 }
 
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 img,
 svg {
   max-width: 100%;
