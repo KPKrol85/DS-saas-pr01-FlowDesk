@@ -1,0 +1,38 @@
+.clients-layout {
+  display: grid;
+  gap: var(--space-20);
+}
+
+@media (min-width: 64rem) {
+  .clients-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+.side-panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-12);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  padding: var(--space-20);
+  box-shadow: var(--shadow-sm);
+}
+
+.side-panel > h2,
+.side-panel > p {
+  margin: 0;
+}
+
+.side-panel > h2 {
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+}
+
+@media (min-width: 64rem) {
+  .clients-layout {
+    gap: var(--space-24);
+  }
+}

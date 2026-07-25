@@ -149,6 +149,26 @@ textarea:disabled,
   text-align: center;
 }
 
+.icon {
+  flex: 0 0 auto;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(227, 232, 240, 0.6) 0%, rgba(227, 232, 240, 0.2) 50%, rgba(227, 232, 240, 0.6) 100%);
+  border-radius: var(--radius-md);
+  height: 12px;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

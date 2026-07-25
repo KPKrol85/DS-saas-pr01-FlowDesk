@@ -71,7 +71,7 @@ export const renderDashboardView = (container) => {
                         const href = `#/projects/${encodeURIComponent(item.id)}`;
 
                         return `
-                    <div class="list__item dashboard-list__item${nextActionModifierClass(overdue, highPriority)}">
+                    <div class="list__item dashboard-list__item dashboard-list__item--with-action${nextActionModifierClass(overdue, highPriority)}">
                       <div class="dashboard-list__main">
                         <a class="dashboard-list__link" href="${href}"><strong>${escapeHTML(item.name)}</strong></a>
                         <div class="dashboard-list__footer">

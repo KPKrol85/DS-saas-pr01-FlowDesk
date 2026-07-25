@@ -1,0 +1,8 @@
+/*
+ * Intentionally empty: every selector rendered by clientDetailView.js resolves to
+ * shared modules — detail-grid/meta-grid/tag-row/timeline live in views/detail-shared.css
+ * (also used by projectDetailView.js), and the rest (card, list, badge, data-*, page-header,
+ * empty-state) are components. No client-detail-exclusive rule exists in the legacy
+ * css/views.css to migrate here. Kept as an explicit module per the requested structure
+ * and import order rather than silently omitted.
+ */

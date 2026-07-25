@@ -1,0 +1,26 @@
+.card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-16);
+  background: var(--bg-elev);
+  border-radius: var(--radius-lg);
+  padding: var(--space-20);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.card > p {
+  line-height: 1.5;
+  margin: 0;
+}
+
+.card > .btn {
+  justify-self: start;
+}
+
+.card__title {
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+  margin: 0;
+}

@@ -1,0 +1,4 @@
+.calendar-list {
+  display: grid;
+  gap: var(--space-12);
+}
