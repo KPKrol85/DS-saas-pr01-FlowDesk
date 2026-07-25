@@ -810,6 +810,8 @@
 .login__logo {
   display: block;
   flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .login__brand-name {
@@ -825,7 +827,7 @@
 
 .login__eyebrow {
   margin: 0;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
   color: var(--text-muted);
   font-size: var(--fs-12);
   font-weight: var(--fw-semibold);
@@ -962,13 +964,13 @@
 
 .login__desc {
   color: var(--text-muted);
-  font-size: var(--fs-14);
+  font-size: var(--fs-12);
   line-height: 1.45;
-  margin: 0 0 var(--space-24);
+  margin: 0 0 var(--space-16);
 }
 
 .login__demo-note {
-  padding: var(--space-12);
+  padding: var(--space-10);
   margin: 0 0 var(--space-24);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

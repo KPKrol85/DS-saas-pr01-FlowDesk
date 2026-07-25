@@ -49,8 +49,9 @@ export const renderLoginView = (container) => {
           </div>
           <p class="login__eyebrow">PANEL OPERACYJNY</p>
           <h2 class="login__title" id="loginTitle">Zaloguj się do FlowDesk</h2>
-          <p class="login__desc">Użyj dowolnego poprawnego adresu email i hasła o długości co najmniej 6 znaków.</p>
-          <p class="login__demo-note">To lokalna sesja demonstracyjna, a nie prawdziwe konto użytkownika.</p>
+          <p class="login__desc">Wpisz dowolny poprawny adres e-mail oraz hasło składające się z co najmniej 6 znaków.
+          </p>
+          <p class="login__demo-note">To wersja demonstracyjna. Dane logowania nie są wysyłane do serwera.</p>
           <form id="loginForm" class="form-grid" novalidate>
             ${inputField({ id: 'email', label: 'Email', type: 'email', placeholder: 'anna@firma.pl', required: true, helper: 'Użyj formatu: imie@firma.pl', autocomplete: 'email' })}
             ${inputField({ id: 'password', label: 'Hasło', type: 'password', required: true, helper: 'Minimum 6 znaków.', autocomplete: 'current-password', minLength: 6 })}

@@ -140,6 +140,7 @@
 @media (min-width: 64rem) {
   .app__shell {
     grid-template-columns: 240px 1fr;
+    grid-template-rows: 1fr;
   }
 
   .app__content {
