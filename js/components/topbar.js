@@ -24,7 +24,6 @@ const renderThemeToggle = (theme) => {
   return `<button class="btn btn--icon" id="themeToggle" aria-label="${label}">${renderThemeToggleIcon(iconName)}</button>`;
 };
 
-
 export const renderTopbar = (theme = 'light') => {
   const session = auth.getSession();
   return `

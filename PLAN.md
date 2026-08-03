@@ -25,10 +25,12 @@
 
 - [ ] **PH1-01 — Eliminate the Prettier failures blocking `npm run lint`** — Priority: High
   - [x] add a repository line-ending policy in `.gitattributes` (`* text=auto eol=lf`, CRLF preserved for `*.bat` and `*.cmd`)
-  - [ ] remove the stray consecutive blank line in `js/components/topbar.js` and in `regulamin.html`
-  - [ ] confirm on a fresh checkout whether `package.json`, `icons.md` and `LICENSE.md` still fail `prettier --check`; these three currently differ from expected output only by carriage returns
-  - [ ] if they still fail after normalization, resolve the remaining line endings without a bulk reformat of unrelated content
+  - [x] remove the stray consecutive blank line in `js/components/topbar.js` and in `regulamin.html`
+  - [x] determine why `package.json`, `icons.md` and `LICENSE.md` fail `prettier --check`; `package.json` and `LICENSE.md` differed from expected output only by carriage returns, while `icons.md` additionally required one blank line between an HTML comment and the following block
+  - [x] normalize those three files to LF at byte level and apply the single `icons.md` whitespace correction, without reformatting unrelated content
+  - [ ] re-run the checks on a fresh Windows checkout to confirm the `.gitattributes` policy holds there
   - **Completion condition:** `npx prettier . --check` reports no files and `npm run lint` exits zero on both a Windows and a Linux checkout
+  - **Verified so far:** on Linux, `npx prettier . --check`, `npx eslint .` and `npx stylelint "css/**/*.css"` were executed and passed. `npm run lint` as one chained command exceeded the available execution window, so its three steps were run individually instead.
   - **Source:** `AUDIT.md` — P1-04
 
 - [ ] **PH1-02 — Bring the precached app shell within its gzip budget** — Priority: High
