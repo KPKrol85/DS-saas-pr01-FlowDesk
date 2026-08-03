@@ -10,7 +10,8 @@ const checkOnly = process.argv.includes('--check');
 const explicitAssets = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/css/style.css'];
 const runtimeDirectories = ['css', 'js', 'assets/fonts', 'assets/icons'];
 const allowedExtensions = new Set(['.css', '.js', '.woff2', '.svg']);
-const ignoredFiles = new Set(['/css/style.min.css', '/js/main.min.js']);
+// favicon.svg is served normally but stays out of the precached shell: it is not required for offline operation.
+const ignoredFiles = new Set(['/css/style.min.css', '/js/main.min.js', '/assets/icons/favicon/favicon.svg']);
 
 const toAssetPath = (filePath) => `/${relative(projectRoot, filePath).split(sep).join('/')}`;
 

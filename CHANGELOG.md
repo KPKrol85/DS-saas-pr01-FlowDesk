@@ -18,6 +18,8 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Changed the layered CSS architecture by splitting the monolithic component and view stylesheets into dedicated `base`, `layout`, `components` and `views` modules behind the existing `css/style.css` entry point, and consolidated reusable badge styling into one canonical component source.
 - Changed the dashboard to a two-column KPI grid on small viewports, with distinct quick-action cards and explicit overdue and attention states in the activity lists.
 - Changed the demo seed data to use reserved `.test` domains and non-routable placeholder phone numbers, so no fabricated real-world contact details are published.
+- Changed the published favicon to remove generator metadata, embedded EXIF and XMP blocks, reducing the precached app-shell payload while keeping the rendered icon pixel-identical.
+- Changed the generated app-shell precache to exclude `favicon.svg`, which is not required for offline operation and remains served and referenced normally, bringing the app shell back within its configured gzip budget.
 
 ### Fixed
 
