@@ -40,17 +40,18 @@ npm run pwa:check
 
 ## Cache strategies
 
-| Zasób              | Strategia                                                            | Uzasadnienie                                                                                             |
-| ------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Nawigacja HTML     | network-first, fallback do cached `index.html`, potem `offline.html` | użytkownik dostaje świeżą aplikację online i działający shell offline                                    |
-| App shell          | cache-first                                                          | moduły SPA muszą być dostępne offline po pierwszej wizycie                                               |
-| JavaScript modules | cache-first przez app-shell/static matcher                           | obecna aplikacja używa ES Modules bez bundlera                                                           |
-| CSS                | cache-first                                                          | style są statyczne i wersjonowane nazwą cache                                                            |
-| Fonty              | cache-first                                                          | lokalne fonty nie wymagają requestów zewnętrznych                                                        |
-| Ikony PWA          | cache-first                                                          | wymagane dla instalowalności i offline                                                                   |
-| `offline.html`     | precache                                                             | zawsze dostępny jako ostatni fallback                                                                    |
-| Przyszłe `/api/*`  | network-only z offline `503`                                         | API nie jest jeszcze zaimplementowane, a przyszłe dane biznesowe nie powinny być cache'owane przypadkowo |
-| Nieznane requesty  | pass-through do sieci                                                | service worker nie przejmuje zasobów spoza ustalonego zakresu                                            |
+| Zasób              | Strategia                                                     | Uzasadnienie                                                                                             |
+| ------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Nawigacja HTML     | network-first, cache per dokument, fallback do `offline.html` | każdy dokument ma własny klucz cache, więc jedna strona nie nadpisuje innej                              |
+| Strony prawne      | network-first, runtime cache pod własnym URL                  | nie są częścią app-shell; offline dostępne dopiero po wcześniejszej wizycie                              |
+| App shell          | cache-first                                                   | moduły SPA muszą być dostępne offline po pierwszej wizycie                                               |
+| JavaScript modules | cache-first przez app-shell/static matcher                    | obecna aplikacja używa ES Modules bez bundlera                                                           |
+| CSS                | cache-first                                                   | style są statyczne i wersjonowane nazwą cache                                                            |
+| Fonty              | cache-first                                                   | lokalne fonty nie wymagają requestów zewnętrznych                                                        |
+| Ikony PWA          | cache-first                                                   | wymagane dla instalowalności i offline                                                                   |
+| `offline.html`     | precache                                                      | zawsze dostępny jako ostatni fallback                                                                    |
+| Przyszłe `/api/*`  | network-only z offline `503`                                  | API nie jest jeszcze zaimplementowane, a przyszłe dane biznesowe nie powinny być cache'owane przypadkowo |
+| Nieznane requesty  | pass-through do sieci                                         | service worker nie przejmuje zasobów spoza ustalonego zakresu                                            |
 
 ## Update lifecycle
 
@@ -76,9 +77,12 @@ To chroni aktywną pracę użytkownika przed wymuszonym przeładowaniem.
 
 Po pierwszej udanej wizycie service worker precache'uje app-shell. Przy braku sieci:
 
-- znana nawigacja zwraca cached SPA shell,
+- każda udana nawigacja jest cache'owana pod własnym adresem dokumentu; `/` i `/index.html` dzielą jeden klucz `/index.html`, pozostałe dokumenty używają własnej ścieżki,
+- nawigacja do wejścia aplikacji (`/` lub `/index.html`) zwraca cached SPA shell,
 - aplikacja pokazuje routing i widoki dostępne z lokalnego stanu,
-- jeśli shell nie jest dostępny, użytkownik dostaje `offline.html`,
+- nawigacja do dokumentu spoza aplikacji (np. `/regulamin.html`) zwraca ten dokument tylko jeśli był wcześniej odwiedzony online,
+- jeśli żądany dokument nie jest w cache, użytkownik dostaje `offline.html`,
+- odpowiedź z cache, która powstała po przekierowaniu (`response.redirected`), jest odbudowywana jako zwykła odpowiedź; przeglądarka odrzuca przekierowaną odpowiedź w `respondWith` dla nawigacji. Dotyczy to lokalnego `npx serve`, który domyślnie przekierowuje `*.html` na adres bez rozszerzenia,
 - przyszłe requesty `/api/*` powinny zwracać kontrolowany błąd offline i przejść przez kolejkę sync dopiero w etapie backend/offline-first.
 
 ## Storage unavailable

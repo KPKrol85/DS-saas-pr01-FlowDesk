@@ -15,7 +15,8 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH2-01` — Correct service worker navigation caching and the offline fallback.
+2. `PH3-01` — Expose the active route programmatically in application navigation.
+3. `PH3-02` — Communicate form validation failures at the moment they occur.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -53,12 +54,16 @@
 
 **Goal:** Make runtime caching behave as `docs/pwa-strategy.md` specifies, so the offline fallback returns the correct document.
 
-- [ ] **PH2-01 — Key navigation cache writes to the requested document** — Priority: High
-  - [ ] replace the fixed `'/index.html'` cache key in `navigationNetworkFirst` (`service-worker.js:39-50`) so each navigation response is stored against its own URL
-  - [ ] scope the offline branch so the application shell is returned for application navigations and `offline.html` is returned otherwise
-  - [ ] confirm the four indexed documents behave correctly: `/`, `/polityka-prywatnosci.html`, `/regulamin.html` and `/cookies.html`
-  - [ ] decide whether the three legal pages should join the precached app shell or remain network-only with an `offline.html` fallback, and reflect that decision in `docs/pwa-strategy.md`
+- [x] **PH2-01 — Key navigation cache writes to the requested document** — Priority: High
+  - [x] replace the fixed `'/index.html'` cache key in `navigationNetworkFirst` with a per-document key; `/` and `/index.html` share the `/index.html` entry, every other document uses its own pathname
+  - [x] scope the offline branch so the requested document is returned when cached and `offline.html` is returned otherwise
+  - [x] keep the three legal pages network-first and runtime-cached under their own URLs rather than adding them to the precached shell, and record that in `docs/pwa-strategy.md`
+  - [x] add a focused regression test in `tests/unit/service-worker-navigation.test.js` covering the three contract cases
+  - [x] rebuild a redirected cached response before returning it as a navigation fallback; browser verification produced `ERR_FAILED` for an uncached document because the precached `/offline.html` was stored as a redirected response and `respondWith` rejects those for navigations
+  - [x] confirm the documents behave correctly in a browser; with an active service worker and DevTools Offline, navigation to `/` returned the application, `/cookies` returned its own cached document, and the uncached `/offline-fallback-test-7352.html` rendered the cached `offline.html` instead of `ERR_FAILED`
   - **Completion condition:** after an online visit to a legal page, an offline navigation to `/` renders the application, and an offline navigation to an uncached document renders `offline.html`
+  - **Verification:** manual browser verification passed against an active service worker with DevTools Offline enabled. The focused regression test additionally fails against the previous implementation and passes against the current one, executed in a Node sandbox because the Vitest native binding was unavailable in the implementation environment.
+  - **Context:** `npx serve` enables `cleanUrls`, so `/offline.html` answers `301` to `/offline`. Verified by request: `/offline.html`, `/index.html`, `/cookies.html` all return `301`, while `/` returns `200`. A host that redirects document URLs reproduces the same condition, so the correction is not specific to local development.
   - **Source:** `AUDIT.md` — P1-02
 
 ## Phase 3 — Accessibility of implemented interactions

@@ -24,6 +24,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 ### Fixed
 
 - Fixed the theme toggle icon and accessible label so they stay synchronized with the persisted theme preference.
+- Fixed service worker navigation caching so each document is cached under its own URL instead of one fixed key, preventing a legal page from overwriting the application shell, and rebuilt redirected cached responses so an uncached document falls back to `offline.html` instead of failing the navigation.
 
 ### Removed
 

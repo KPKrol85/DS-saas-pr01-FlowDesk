@@ -15,7 +15,14 @@ const APP_SHELL = manifest.appShell;
 const APP_SHELL_SET = new Set(APP_SHELL);
 const STATIC_ASSET_PATTERN = /\.(?:css|js|woff2|svg|webmanifest)$/;
 
+const APP_ENTRY_URL = '/index.html';
+
 const normalizePathname = (url) => (url.pathname === '/' ? '/' : url.pathname);
+
+// The SPA entry is reachable as '/' and '/index.html'; both share one cache key.
+// Every other document is cached under its own pathname so one page cannot overwrite another.
+const isAppEntryRequest = (url) => url.pathname === '/' || url.pathname === APP_ENTRY_URL;
+const navigationCacheKey = (url) => (isAppEntryRequest(url) ? APP_ENTRY_URL : normalizePathname(url));
 
 const isSameOrigin = (url) => url.origin === self.location.origin;
 const isAppShellRequest = (url) => isSameOrigin(url) && APP_SHELL_SET.has(normalizePathname(url));
@@ -36,16 +43,29 @@ const cacheFirst = async (request) => {
   return putInCache(request, response);
 };
 
+// A cached response that followed a redirect cannot be handed to respondWith for a
+// navigation, so it is rebuilt as a plain response before being returned.
+const asNavigationResponse = async (response) => {
+  if (!response) return Response.error();
+  if (!response.redirected) return response;
+  return new Response(await response.blob(), {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers
+  });
+};
+
 const navigationNetworkFirst = async (request) => {
+  const cacheKey = navigationCacheKey(new URL(request.url));
   const cache = await caches.open(CACHE_NAME);
   try {
     const response = await fetch(request);
-    if (response.ok) {
-      await cache.put('/index.html', response.clone());
+    if (response.ok && !response.redirected && response.type !== 'opaque') {
+      await cache.put(cacheKey, response.clone());
     }
     return response;
   } catch {
-    return (await cache.match('/index.html')) || (await cache.match(OFFLINE_URL));
+    return asNavigationResponse((await cache.match(cacheKey)) || (await cache.match(OFFLINE_URL)));
   }
 };
 
