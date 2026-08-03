@@ -35,10 +35,6 @@ Desktop.ini
 /FLOWDESK-CONTEXT.md
 /CLAUDE.md
 
-# Local prompt scratch files
-/PROMPT.md
-/PROMPT.local.md
-
 # Test, coverage, and QA output
 coverage/
 playwright-report/
