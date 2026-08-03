@@ -4,11 +4,47 @@ All notable FlowDesk changes should be documented here.
 
 The project uses semantic versioning language for named milestones. See `docs/versioning.md`.
 
+## [Unreleased]
+
+### Added
+
+- Added public legal pages for the privacy policy, terms of service and cookie policy, linked from the login view and listed in `sitemap.xml`.
+- Added a theme toggle to the public legal pages through `js/legal-theme.js`, so they follow the same light and dark contract as the application.
+- Added verified PWA install icons, application shortcuts for the dashboard, client and service-order routes, and social preview metadata backed by real image assets.
+
+### Changed
+
+- Changed the login screen to a split-screen layout separating the product introduction from the authentication card.
+- Changed the layered CSS architecture by splitting the monolithic component and view stylesheets into dedicated `base`, `layout`, `components` and `views` modules behind the existing `css/style.css` entry point, and consolidated reusable badge styling into one canonical component source.
+- Changed the dashboard to a two-column KPI grid on small viewports, with distinct quick-action cards and explicit overdue and attention states in the activity lists.
+- Changed the demo seed data to use reserved `.test` domains and non-routable placeholder phone numbers, so no fabricated real-world contact details are published.
+
+### Fixed
+
+- Fixed the theme toggle icon and accessible label so they stay synchronized with the persisted theme preference.
+
+### Removed
+
+- Removed internal planning and context documents from the tracked repository, including the earlier to-do, implementation-plan and product-readiness files.
+
+### Documentation
+
+- Added `AUDIT.md` as the canonical current-state technical audit and `PLAN.md` as the canonical development plan, with historical audits archived under `docs/archive/audits/` by their original audit date.
+- Replaced the README with bilingual Polish and English documentation covering architecture, scripts, deployment and project boundaries.
+- Added `LICENSE.md` with the proprietary KP_Code project license and referenced it from `package.json`.
+- Standardized project terminology so a project is documented as a service job or service order.
+- Added `docs/future-saas-readiness.md` and visual QA evidence for the main desktop and mobile views under `docs/qa/`.
+
+### Build and Tooling
+
+- Added a repository line-ending policy in `.gitattributes` that normalizes tracked text to LF and preserves CRLF for `*.bat` and `*.cmd` files.
+- Set the development server to port 8181 and added a Windows launcher, `start-dev.bat`, that verifies the local dependency installation before starting it.
+
 ## 1.0.0 - 2026-07-05
 
 ### Added
 
-- repeatable quality toolchain with linting, formatting, test scripts and CI
+- repeatable quality toolchain with linting, formatting and test scripts
 - Vitest unit and integration tests
 - Playwright e2e, visual smoke and axe accessibility checks
 - formal domain models, validation, schema migrations and recovery rules
