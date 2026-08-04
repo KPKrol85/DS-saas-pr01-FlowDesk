@@ -164,4 +164,13 @@ describe('ui components', () => {
     expect(moved[0].getAttribute('href')).toBe('#/calendar');
     expect(links(renderSidebar('/unknown')).some((link) => link.hasAttribute('aria-current'))).toBe(false);
   });
+
+  it('renders the brand logo through the canonical root-relative path', () => {
+    for (const markup of [renderSidebar('/dashboard'), renderNavList('/dashboard')]) {
+      const logo = render(`<div>${markup}</div>`).querySelector('.sidebar__brand-logo');
+
+      expect(logo.getAttribute('src')).toBe('/assets/logo/logo.svg');
+      expect(markup).not.toContain('src="assets/');
+    }
+  });
 });

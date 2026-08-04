@@ -20,6 +20,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Changed the demo seed data to use reserved `.test` domains and non-routable placeholder phone numbers, so no fabricated real-world contact details are published.
 - Changed the published favicon to remove generator metadata, embedded EXIF and XMP blocks, reducing the precached app-shell payload while keeping the rendered icon pixel-identical.
 - Changed the generated app-shell precache to exclude `favicon.svg`, which is not required for offline operation and remains served and referenced normally, bringing the app shell back within its configured gzip budget.
+- Changed the sidebar brand image to the root-relative `/assets/logo/logo.svg` used everywhere else, and added the shell logo to the app-shell precache so it stays available on a cold offline start.
 
 ### Fixed
 

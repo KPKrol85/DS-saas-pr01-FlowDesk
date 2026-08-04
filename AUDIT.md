@@ -144,6 +144,7 @@ None detected.
 - **Impact:** Because `_redirects` rewrites every unmatched path to `index.html` with status 200, a request to a path ending in a slash resolves the relative reference against that path and returns HTML instead of the SVG, producing a broken image in the shell. The precache gap means the shell logo is unavailable on a cold offline start. Neither consequence is reachable on the canonical `/` entry point, which is why this is scoped as a source-visible risk rather than a confirmed failure.
 - **Recommended direction:** Use the root-relative path already used everywhere else, and decide explicitly whether `assets/logo/` belongs in the precached app shell.
 - **Verification criteria:** No runtime module references project assets with a relative path, and the shell logo's precache status is a deliberate, documented choice.
+- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH4-02`. The sidebar now uses `/assets/logo/logo.svg`, and a sweep of runtime JavaScript confirmed no other relative project-asset reference remains. `assets/logo` was added to the generator's `runtimeDirectories`, so the shell logo is precached deliberately; the extension filter keeps the unused `logo.png` out. The contract is recorded in `docs/pwa-strategy.md` and the app shell measures 172.3 KB against the 180 KB limit.
 
 ### [P2-04] `404.html` can never be served by the current deployment configuration
 

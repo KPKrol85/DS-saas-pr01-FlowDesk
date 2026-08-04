@@ -15,8 +15,8 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH4-02` — Normalize the sidebar logo path and settle its precache status.
-3. `PH5-01` — Resolve the duplicate not-found mechanism.
+2. `PH5-01` — Resolve the duplicate not-found mechanism.
+3. `PH5-02` — Align the changelog claim about CI.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -101,12 +101,13 @@
   - **Verification:** the focused case in `tests/unit/store.test.js` forces the storage write to fail and asserts that validation still succeeds, the action does not claim durable success, the reason is explicit, in-memory state still updates, and a domain validation failure stays distinguishable. Its assertions were executed against the real exported store and persistence modules in an inline Node run; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Source:** `AUDIT.md` — P2-05
 
-- [ ] **PH4-02 — Normalize the sidebar logo path and settle its precache status** — Priority: Low
-  - [ ] change `js/components/sidebar.js:13` to the root-relative `/assets/logo/logo.svg` used by `js/views/loginView.js` and all three legal pages
-  - [ ] decide whether `assets/logo/` should be added to `runtimeDirectories` in `scripts/generate-service-worker-manifest.js`, so the shell logo is available on a cold offline start
-  - [ ] if the directory is added, confirm the resulting app-shell size still satisfies `PH1-02`
-  - [ ] regenerate `service-worker-assets.js` after the change
+- [x] **PH4-02 — Normalize the sidebar logo path and settle its precache status** — Priority: Low
+  - [x] change the sidebar brand image to the root-relative `/assets/logo/logo.svg` used by `js/views/loginView.js` and all three legal pages; a sweep of every `src`/`href` literal in runtime JavaScript confirmed this was the only relative project-asset reference
+  - [x] decide whether `assets/logo/` should be added to `runtimeDirectories` in `scripts/generate-service-worker-manifest.js`; it was added, so the shell logo is precached rather than depending on an incidental first-visit runtime cache. The generator's existing extension filter admits only `logo.svg` (2.3 KB gzip) and keeps the unused `logo.png` out of the shell.
+  - [x] confirm the resulting app-shell size satisfies the enforced budget; the executed check reports 172.3 KB against the 180 KB limit, leaving 7.7 KB of headroom
+  - [x] regenerate `service-worker-assets.js` after the change; the version advanced from `0c94d3dc733c` to `76feb9d54448` and the asset count from 89 to 90, with `/assets/logo/logo.svg` as the only addition
   - **Completion condition:** no runtime module references a project asset with a relative path, and the logo's precache status is a deliberate, recorded choice
+  - **Verification:** the focused case in `tests/unit/components.test.js` asserts that both `renderSidebar()` and `renderNavList()` emit `/assets/logo/logo.svg` and contain no `src="assets/` literal. Its assertions were executed against the real exported renderer in an inline Node run; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Depends on:** `PH1-02`
   - **Source:** `AUDIT.md` — P2-03
 

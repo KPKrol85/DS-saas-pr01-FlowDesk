@@ -19,6 +19,7 @@ Skrypt `scripts/generate-service-worker-manifest.js` tworzy `service-worker-asse
 - źródłowe moduły JavaScript aplikacji
 - fonty `woff2`
 - ikony PWA
+- `assets/logo/logo.svg` — logo powłoki renderowane przez sidebar i drawer, precache'owane celowo, aby było dostępne przy zimnym starcie offline
 
 Manifest celowo pomija:
 
@@ -28,7 +29,8 @@ Manifest celowo pomija:
 - screenshoty i wyniki testów
 - `css/style.min.css`
 - `js/main.min.js`
-- logo nieużywane przez app-shell
+- `assets/logo/logo.png` — wariant rastrowy nieużywany w runtime; filtr rozszerzeń generatora dopuszcza z tego katalogu wyłącznie `.svg`
+- `assets/icons/favicon/favicon.svg` — serwowany normalnie, ale niewymagany do działania offline
 
 Walidacja:
 

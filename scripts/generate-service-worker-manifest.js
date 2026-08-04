@@ -8,7 +8,8 @@ const outputPath = resolve(projectRoot, 'service-worker-assets.js');
 const checkOnly = process.argv.includes('--check');
 
 const explicitAssets = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/css/style.css'];
-const runtimeDirectories = ['css', 'js', 'assets/fonts', 'assets/icons'];
+// assets/logo contributes only logo.svg; the extension filter keeps logo.png out of the shell.
+const runtimeDirectories = ['css', 'js', 'assets/fonts', 'assets/icons', 'assets/logo'];
 const allowedExtensions = new Set(['.css', '.js', '.woff2', '.svg']);
 // favicon.svg is served normally but stays out of the precached shell: it is not required for offline operation.
 const ignoredFiles = new Set(['/css/style.min.css', '/js/main.min.js', '/assets/icons/favicon/favicon.svg']);

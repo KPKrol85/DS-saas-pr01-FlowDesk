@@ -10,7 +10,7 @@ const navItems = [
 
 const renderSidebarBrand = () => `
   <a class="sidebar__brand" href="#/dashboard" aria-label="FlowDesk dashboard">
-    <img class="sidebar__brand-logo" src="assets/logo/logo.svg" alt="" aria-hidden="true" />
+    <img class="sidebar__brand-logo" src="/assets/logo/logo.svg" alt="" aria-hidden="true" />
     <span class="sidebar__brand-name">FlowDesk</span>
   </a>
 `;
