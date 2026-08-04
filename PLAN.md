@@ -15,8 +15,8 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH5-01` — Resolve the duplicate not-found mechanism.
-3. `PH5-02` — Align the changelog claim about CI.
+2. `PH5-02` — Align the changelog claim about CI.
+3. `PH6-01` — Execute and record the complete quality gate.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -115,11 +115,12 @@
 
 **Goal:** Remove the two places where repository documents contradict the repository itself.
 
-- [ ] **PH5-01 — Resolve the duplicate not-found mechanism** — Priority: Low
-  - [ ] confirm that `_redirects` (`/*    /index.html   200`) makes the committed `404.html` unreachable on the current hosting model
-  - [ ] keep one mechanism: either document `404.html` as an intentional fallback for hosting without the rewrite, or remove it and rely on `renderNotFoundView`
-  - [ ] record the resulting routing behavior, including the soft-404 trade-off, in the deployment section of `README.md`
+- [x] **PH5-01 — Resolve the duplicate not-found mechanism** — Priority: Low
+  - [x] confirm that `_redirects` (`/*    /index.html   200`) makes the committed `404.html` unreachable on the current hosting model
+  - [x] keep one mechanism: `404.html` was removed, `_redirects` remains the server-side fallback and `renderNotFoundView` remains the application-level not-found view. A repository sweep confirmed the file was referenced only by audit and plan text, never by runtime code, tests, the manifest generator, the generated app shell, `sitemap.xml` or `robots.txt`, so no regeneration was required.
+  - [x] record the resulting routing behavior, including the soft-404 trade-off, in the deployment section of `README.md`, in both the Polish and the English section
   - **Completion condition:** the repository contains exactly one documented not-found mechanism consistent with `_redirects`
+  - **Verification:** a new case in `tests/unit/router.test.js` asserts that an unknown hash path resolves to `renderNotFoundView`. Its assertion was executed against the real router in an inline Node run; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Source:** `AUDIT.md` — P2-04
 
 - [ ] **PH5-02 — Align the changelog claim about CI** — Priority: Low

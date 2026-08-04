@@ -43,6 +43,20 @@ describe('router', () => {
     cleanup();
   });
 
+  it('routes an unknown hash path to the not-found view', async () => {
+    window.localStorage.setItem('flowdesk_session_v1', JSON.stringify({ email: 'demo@flowdesk.pl' }));
+    const { router } = await import('../../js/core/router.js');
+    const { renderNotFoundView } = await import('../../js/views/notFoundView.js');
+    const onRoute = vi.fn();
+
+    window.location.hash = '#/does-not-exist';
+    const cleanup = router.init({ onRoute });
+
+    expect(onRoute).toHaveBeenCalledWith(expect.objectContaining({ path: '/does-not-exist', view: renderNotFoundView }));
+
+    cleanup();
+  });
+
   it('routes authenticated users to dynamic detail views', async () => {
     window.localStorage.setItem('flowdesk_session_v1', JSON.stringify({ email: 'demo@flowdesk.pl' }));
     const { router } = await import('../../js/core/router.js');

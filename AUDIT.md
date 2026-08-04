@@ -154,6 +154,7 @@ None detected.
 - **Current behavior:** The catch-all rewrite returns the application shell with status 200 for every path that does not match a static file, so the committed `404.html` is unreachable in that hosting model. Unknown paths are handled instead by the SPA's own `renderNotFoundView`, which is reached through the hash router.
 - **Impact:** The repository carries two mutually exclusive not-found mechanisms with no indication of which is authoritative, and a maintainer may edit the file that cannot run. All unknown URLs also resolve as soft 404s for crawlers, which is a normal SPA trade-off but is not stated anywhere.
 - **Recommended direction:** Keep one not-found path. Either document `404.html` as an intentional fallback for hosting without the rewrite, or remove it and rely on the in-application view.
+- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH5-01`. `404.html` was removed, `_redirects` remains the server-side fallback and `renderNotFoundView` remains the application-level mechanism. Both README language sections now state that unknown server paths receive the SPA shell with status `200`, which is a soft-404 trade-off rather than a true HTTP `404`. The file was never part of the generated app-shell manifest, so no regeneration was required.
 - **Verification criteria:** The repository contains exactly one documented not-found mechanism consistent with `_redirects`.
 
 ### [P2-05] Failed local persistence is reported to views as a successful write
@@ -189,7 +190,7 @@ None detected.
 ### Move security headers from the document meta tag to hosting configuration
 
 - **Relevant area:** Security-visible configuration.
-- **Current evidence:** The Content Security Policy exists only as a `<meta http-equiv>` tag in `index.html`. The four static pages — `polityka-prywatnosci.html`, `regulamin.html`, `cookies.html` and `404.html` — carry no policy at all. The repository contains `_redirects` but no `_headers` file.
+- **Current evidence:** The Content Security Policy exists only as a `<meta http-equiv>` tag in `index.html`. The static pages — `polityka-prywatnosci.html`, `regulamin.html` and `cookies.html` — carry no policy at all. The repository contains `_redirects` but no `_headers` file.
 - **Potential value:** A `_headers` file would apply one policy across every document and would allow directives that a meta tag cannot express, notably `frame-ancestors`. The current runtime is already compatible with a strict policy, since no module emits inline styles or handlers, so the change carries little risk.
 - **Scope boundary:** Optional and outside the current demo scope. `README.md` already lists hosting security headers as production work rather than a present capability.
 

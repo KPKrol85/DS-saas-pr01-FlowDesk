@@ -159,6 +159,8 @@ Skrypt wykonuje również build, dlatego może zaktualizować śledzone pliki ge
 
 FlowDesk jest wdrażany jako statyczna zawartość katalogu repozytorium. Plik `_redirects` zapewnia fallback SPA zgodny z Netlify. Publiczny origin, `canonical`, Open Graph, `robots.txt` i `sitemap.xml` wskazują `https://saas-pr01-flowdesk.netlify.app/`.
 
+Obsługa nieznanych adresów działa na dwóch poziomach. Nieznane ścieżki serwera trafiają przez regułę `/*    /index.html   200` do `index.html`, a nieznane trasy hash aplikacji renderuje `renderNotFoundView`. Reguła catch-all odpowiada statusem `200`, więc dla ścieżek serwera obowiązuje model soft-404, a nie prawdziwa odpowiedź HTTP `404`; renderowanie po stronie klienta nie zmienia statusu oryginalnej odpowiedzi. Repozytorium nie utrzymuje już osobnego statycznego pliku `404.html`.
+
 Publikacja Netlify i synchronizacja deploymentu są utrzymywane przez właściciela poza tym repozytorium, w repozytorium `kp-code-portfolio`. FlowDesk nie zawiera skryptu wdrożeniowego ani workflow GitHub Actions. Procedury release i rollback opisuje [`docs/release-checklist.md`](docs/release-checklist.md).
 
 ### Dostępność
@@ -370,6 +372,8 @@ The script also runs the build, so it may update tracked generated files.
 ### Deployment
 
 FlowDesk is deployed as static repository-root content. `_redirects` provides a Netlify-compatible SPA fallback. The public origin, `canonical`, Open Graph, `robots.txt`, and `sitemap.xml` point to `https://saas-pr01-flowdesk.netlify.app/`.
+
+Unknown addresses are handled at two levels. Unknown server paths are rewritten to `index.html` through the `/*    /index.html   200` rule, while unknown application hash routes are rendered by `renderNotFoundView`. The catch-all rule responds with `200`, so server paths follow a soft-404 model rather than returning a true HTTP `404`; client-side rendering does not change the status of the original response. The repository no longer maintains a separate static `404.html`.
 
 Netlify publishing and deployment synchronization are owner-managed outside this repository through the `kp-code-portfolio` repository. FlowDesk contains no deployment script or GitHub Actions workflow. Release and rollback procedures are documented in [`docs/release-checklist.md`](docs/release-checklist.md).
 
