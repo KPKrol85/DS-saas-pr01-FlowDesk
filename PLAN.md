@@ -15,8 +15,7 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH5-02` — Align the changelog claim about CI.
-3. `PH6-01` — Execute and record the complete quality gate.
+2. `PH6-01` — Execute and record the complete quality gate.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -123,11 +122,12 @@
   - **Verification:** a new case in `tests/unit/router.test.js` asserts that an unknown hash path resolves to `renderNotFoundView`. Its assertion was executed against the real router in an inline Node run; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Source:** `AUDIT.md` — P2-04
 
-- [ ] **PH5-02 — Align the changelog claim about CI** — Priority: Low
-  - [ ] correct the 1.0.0 entry in `CHANGELOG.md:11`, which lists CI among the delivered toolchain while no workflow configuration exists
-  - [ ] keep the entry consistent with `README.md:162,374`, which states directly that the project contains no deployment script or GitHub Actions workflow
-  - [ ] describe the actual mechanism, the local `npm run check` gate, rather than removing the line without replacement
+- [x] **PH5-02 — Align the changelog claim about CI** — Priority: Low
+  - [x] correct the 1.0.0 entry in `CHANGELOG.md`, which listed CI among the delivered toolchain while no workflow configuration exists; the unsupported claim was dropped and the entry now names the mechanism that does exist
+  - [x] keep the entry consistent with `README.md`, which states directly that the project contains no deployment script or GitHub Actions workflow; both README language sections were inspected and needed no change
+  - [x] describe the actual mechanism, the local `npm run check` gate, rather than removing the line without replacement; the wording follows the current `package.json` chain exactly
   - **Completion condition:** no repository document claims automation that is not present
+  - **Verification:** a repository sweep for `CI`, `continuous integration`, `GitHub Actions` and `workflow` across maintained Markdown and JSON found no remaining claim that automation exists. `docs/architecture.md:216` and `docs/adr/006-pwa-generated-app-shell.md:20` refer to CI conditionally, as something the repository could adopt, and `docs/performance-budget.md` describes Lighthouse CI as a separate tool that is not run here.
   - **Source:** `AUDIT.md` — P2-06
 
 ## Phase 6 — Final verification

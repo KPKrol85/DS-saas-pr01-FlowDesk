@@ -41,6 +41,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Replaced the README with bilingual Polish and English documentation covering architecture, scripts, deployment and project boundaries.
 - Added `LICENSE.md` with the proprietary KP_Code project license and referenced it from `package.json`.
 - Standardized project terminology so a project is documented as a service job or service order.
+- Corrected the 1.0.0 changelog entry, which credited a CI setup the repository does not contain, to describe the local `npm run check` gate that it actually ships.
 - Added `docs/future-saas-readiness.md` and visual QA evidence for the main desktop and mobile views under `docs/qa/`.
 
 ### Build and Tooling
@@ -53,7 +54,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 
 ### Added
 
-- repeatable quality toolchain with linting, formatting and test scripts
+- repeatable quality toolchain with linting, formatting and test scripts, gathered into the local `npm run check` gate that runs the app-shell manifest check, linting, unit and integration tests, browser and accessibility tests, the build and the performance budget
 - Vitest unit and integration tests
 - Playwright e2e, visual smoke and axe accessibility checks
 - formal domain models, validation, schema migrations and recovery rules

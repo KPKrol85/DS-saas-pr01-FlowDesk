@@ -177,6 +177,7 @@ None detected.
 - **Impact:** Two documents in the same repository make opposing claims about automation. For a portfolio-facing project this is the kind of statement a reviewer checks, and the repository does not support it.
 - **Recommended direction:** Align the changelog entry with the actual tooling — the local `npm run check` gate — or leave the entry as historical record and note explicitly that CI was never added.
 - **Verification criteria:** No repository document claims a CI pipeline that is not present.
+- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH5-02`. The 1.0.0 entry no longer credits CI and instead names the mechanism that exists, the local `npm run check` gate, described from the current `package.json` chain. `README.md` was inspected and needed no change, since both language sections already state that the repository contains no deployment script or GitHub Actions workflow. Remaining CI mentions in `docs/` are conditional or refer to Lighthouse CI as a separate tool that is not run here. No CI configuration was added.
 
 ## 7. Extra quality improvements
 
