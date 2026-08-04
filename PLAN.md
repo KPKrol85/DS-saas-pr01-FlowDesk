@@ -15,8 +15,8 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH3-01` — Expose the active route programmatically in application navigation.
-3. `PH3-02` — Communicate form validation failures at the moment they occur.
+2. `PH3-02` — Communicate form validation failures at the moment they occur.
+3. `PH4-01` — Surface failed local persistence instead of reporting success.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -70,12 +70,12 @@
 
 **Goal:** Close the two verified gaps where implemented interactions are not communicated to assistive technology.
 
-- [ ] **PH3-01 — Expose the active route programmatically in application navigation** — Priority: Medium
-  - [ ] emit `aria-current="page"` on the active link in `renderNavigationLinks()` (`js/components/sidebar.js:18-31`) alongside the existing `sidebar__link--active` class
-  - [ ] confirm the attribute applies in both the desktop sidebar and the mobile drawer, which share `renderNavList()`
-  - [ ] match the convention already used on the static pages and styled in `css/views/legal.css:212`
-  - [ ] regenerate `service-worker-assets.js`, since `js/components/sidebar.js` belongs to the precached app shell
-  - **Verification:** one focused test asserting that the active link carries `aria-current="page"` and that it moves on route change
+- [x] **PH3-01 — Expose the active route programmatically in application navigation** — Priority: Medium
+  - [x] emit `aria-current="page"` on the active link in `renderNavigationLinks()` alongside the existing `sidebar__link--active` class; inactive links omit the attribute rather than carrying a false value
+  - [x] confirm the attribute applies in both the desktop sidebar and the mobile drawer, which share `renderNavigationLinks()` through `renderSidebar()` and `renderNavList()`
+  - [x] match the convention already used on the static pages and styled in `css/views/legal.css:212`
+  - [x] regenerate `service-worker-assets.js`, since `js/components/sidebar.js` belongs to the precached app shell; the version advanced from `85687ffbb568` to `fb6b62e8d43d`
+  - **Verification:** the focused case in `tests/unit/components.test.js` asserts that exactly one link carries `aria-current="page"`, that it sits on the active route in both renderers, and that it moves on a route change. Its assertions were executed against the real module in a Node sandbox; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Source:** `AUDIT.md` — P2-01
 
 - [ ] **PH3-02 — Communicate form validation failures at the moment they occur** — Priority: Medium

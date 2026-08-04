@@ -5,6 +5,7 @@ import { inputField, selectField, setFieldError, textareaField } from '../../js/
 import { icon } from '../../js/components/icon.js';
 import { openConfirmDialog } from '../../js/components/confirmDialog.js';
 import { pageHeader } from '../../js/components/pageHeader.js';
+import { renderNavList, renderSidebar } from '../../js/components/sidebar.js';
 import { renderTable } from '../../js/components/table.js';
 
 const render = (html) => {
@@ -107,5 +108,24 @@ describe('ui components', () => {
       document.querySelector('.modal-backdrop')?.remove();
       vi.useRealTimers();
     }
+  });
+
+  it('marks only the active navigation link with aria-current in the sidebar and the drawer', () => {
+    const links = (html) => Array.from(render(`<div>${html}</div>`).querySelectorAll('.sidebar__link'));
+
+    for (const markup of [renderSidebar('/clients'), renderNavList('/clients')]) {
+      const current = links(markup).filter((link) => link.getAttribute('aria-current') === 'page');
+
+      expect(current).toHaveLength(1);
+      expect(current[0].getAttribute('href')).toBe('#/clients');
+      expect(current[0].className).toContain('sidebar__link--active');
+      expect(links(markup).filter((link) => link.hasAttribute('aria-current'))).toHaveLength(1);
+    }
+
+    const moved = links(renderSidebar('/calendar')).filter((link) => link.hasAttribute('aria-current'));
+
+    expect(moved).toHaveLength(1);
+    expect(moved[0].getAttribute('href')).toBe('#/calendar');
+    expect(links(renderSidebar('/unknown')).some((link) => link.hasAttribute('aria-current'))).toBe(false);
   });
 });

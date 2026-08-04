@@ -18,14 +18,15 @@ const renderSidebarBrand = () => `
 const renderNavigationLinks = (activePath) => `
   <nav class="sidebar__nav">
     ${navItems
-      .map(
-        (item) => `
-        <a class="sidebar__link ${activePath === item.path ? 'sidebar__link--active' : ''}" href="#${item.path}">
+      .map((item) => {
+        const isActive = activePath === item.path;
+        return `
+        <a class="sidebar__link ${isActive ? 'sidebar__link--active' : ''}" href="#${item.path}"${isActive ? ' aria-current="page"' : ''}>
           ${icon(item.iconName)}
           <span>${item.label}</span>
         </a>
-      `
-      )
+      `;
+      })
       .join('')}
   </nav>
 `;
