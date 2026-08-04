@@ -38,11 +38,13 @@ export const createFlowDeskStore = ({ persistence = statePersistence } = {}) => 
     return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   };
 
+  // A validated action whose local write failed is not reported to views as saved.
   const commitActionResult = (result) => {
     if (!result.ok) return result;
-    state = persistence.save(result.nextState);
+    const { state: nextState, persisted } = persistence.repositoryAdapter.persistState(result.nextState);
+    state = nextState;
     notify();
-    return { ok: true, data: result.data };
+    return persisted ? { ok: true, data: result.data } : { ok: false, error: 'storage-write-failed', data: result.data };
   };
 
   const actionContext = { createId };

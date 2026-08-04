@@ -164,6 +164,7 @@ None detected.
 - **Impact:** If a write fails mid-session, the interface confirms an action that will not survive a reload. Likelihood is low for demo-scale data, and the startup warning already covers fully blocked storage, so the exposure is bounded.
 - **Recommended direction:** Propagate the adapter's write result through the persistence layer so the store can distinguish a validated action from a durably persisted one, and surface the difference in the existing toast feedback.
 - **Verification criteria:** With `localStorage` writes forced to fail, a mutating action reports failure rather than success.
+- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH4-01`. The adapter now exposes `persistState()`, and `commitActionResult()` returns `{ ok: false, error: 'storage-write-failed' }` when the write does not succeed, which routes into the existing per-view failure toasts. The startup warning for fully unavailable storage is unchanged. Focused assertions against the real store and persistence modules pass; Vitest itself was not executed because its native binding was unavailable in the implementation environment.
 
 ### [P2-06] `CHANGELOG.md` credits a CI setup the repository does not contain
 

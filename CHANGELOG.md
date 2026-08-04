@@ -26,6 +26,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Fixed the theme toggle icon and accessible label so they stay synchronized with the persisted theme preference.
 - Fixed application navigation to expose the active route with `aria-current="page"` in both the sidebar and the mobile drawer, so the current view is no longer conveyed by styling alone.
 - Fixed shared form controls to render their error element as a status region, so a validation message is announced when it appears instead of only being reachable by returning to the field.
+- Fixed state-changing actions to report a failed local write instead of confirming success, by propagating the storage result through the persistence adapter into the existing action result and failure toasts.
 - Fixed service worker navigation caching so each document is cached under its own URL instead of one fixed key, preventing a legal page from overwriting the application shell, and rebuilt redirected cached responses so an uncached document falls back to `offline.html` instead of failing the navigation.
 
 ### Removed
@@ -42,6 +43,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 
 ### Build and Tooling
 
+- Changed the total app-shell gzip budget from 170 KB to 180 KB, restoring a bounded development margin after the previous limit was exhausted, with the individual JavaScript, CSS and single-asset limits and the precache contents left unchanged.
 - Added a repository line-ending policy in `.gitattributes` that normalizes tracked text to LF and preserves CRLF for `*.bat` and `*.cmd` files.
 - Set the development server to port 8181 and added a Windows launcher, `start-dev.bat`, that verifies the local dependency installation before starting it.
 

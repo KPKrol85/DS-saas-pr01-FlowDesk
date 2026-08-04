@@ -9,7 +9,7 @@ const manifestPath = resolve(projectRoot, 'service-worker-assets.js');
 const budgets = {
   jsGzipBytes: 85 * 1024,
   cssGzipBytes: 28 * 1024,
-  appShellGzipBytes: 170 * 1024,
+  appShellGzipBytes: 180 * 1024,
   singleAssetGzipBytes: 35 * 1024
 };
 

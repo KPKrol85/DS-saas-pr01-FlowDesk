@@ -10,11 +10,13 @@ export const createLocalStorageRepositoryAdapter = ({ key = STATE_STORAGE_KEY, s
 
   const loadState = () => normalize(storageAdapter.get(key));
 
-  const saveState = (nextState) => {
-    const normalizedState = normalize(nextState);
-    storageAdapter.set(key, normalizedState);
-    return normalizedState;
+  // Reports whether the write was durable.
+  const persistState = (nextState) => {
+    const state = normalize(nextState);
+    return { state, persisted: storageAdapter.set(key, state) !== false };
   };
+
+  const saveState = (nextState) => persistState(nextState).state;
 
   const updateState = (updater) => {
     const currentState = loadState();
@@ -26,6 +28,7 @@ export const createLocalStorageRepositoryAdapter = ({ key = STATE_STORAGE_KEY, s
     kind: 'localStorage',
     loadState,
     saveState,
+    persistState,
     restoreState(rawState) {
       return saveState(rawState);
     },

@@ -135,4 +135,33 @@ describe('store', () => {
     expect(store.getState().projects.some((project) => project.id === 'p2')).toBe(false);
     expect(store.getState().events.some((event) => event.projectId === 'p2')).toBe(false);
   });
+
+  it('does not report a validated action as saved when the local write fails', async () => {
+    const { createFlowDeskStore } = await loadStore();
+    const { createStatePersistence } = await import('../../js/core/persistence.js');
+    const values = new Map();
+    const storageAdapter = {
+      get: (storageKey) => values.get(storageKey) ?? null,
+      set: vi.fn((storageKey, value) => values.set(storageKey, value) && true),
+      remove: (storageKey) => values.delete(storageKey)
+    };
+    const store = createFlowDeskStore({ persistence: createStatePersistence({ storageAdapter }) });
+
+    const saved = store.actions.createClient({ name: 'Durable Client', email: 'durable@test.pl' });
+
+    expect(saved.ok).toBe(true);
+    expect(saved.data.name).toBe('Durable Client');
+
+    storageAdapter.set.mockImplementation(() => false);
+    const failed = store.actions.createClient({ name: 'Volatile Client', email: 'volatile@test.pl' });
+
+    expect(failed.ok).toBe(false);
+    expect(failed.error).toBe('storage-write-failed');
+    expect(store.getState().clients.some((client) => client.name === 'Volatile Client')).toBe(true);
+
+    const invalid = store.actions.createClient({ name: '', email: 'not-an-email' });
+
+    expect(invalid.ok).toBe(false);
+    expect(invalid.error).not.toBe('storage-write-failed');
+  });
 });

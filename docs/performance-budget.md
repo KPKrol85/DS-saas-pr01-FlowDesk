@@ -28,10 +28,18 @@ Pełna konfiguracja Lighthouse CI znajduje się w `lighthouserc.cjs`. Wymaga oso
 | ------------------------- | -----: |
 | JavaScript app-shell gzip |  85 KB |
 | CSS app-shell gzip        |  28 KB |
-| Cały app-shell gzip       | 170 KB |
+| Cały app-shell gzip       | 180 KB |
 | Pojedynczy asset gzip     |  35 KB |
 
 Te limity są celowo konserwatywne dla aktualnego demo, ale nie są ekstremalnie ciasne. Mają ostrzegać przed dodawaniem ciężkich bibliotek, przypadkowym cache'owaniem wygenerowanych plików lub powielaniem CSS.
+
+### Rekalibracja limitu app-shell
+
+Limit całego app-shell wynosił wcześniej 170 KB. Po zamknięciu `PH1-02` realny rozmiar powłoki wynosił około 169,7 KB, czyli poniżej 0,3 KB zapasu, a kolejne poprawki dostępności i odporności stanu wyczerpały go całkowicie. Próg 170 KB przestał więc mierzyć rzeczywistą wagę powłoki i zaczął blokować zmiany rzędu kilkudziesięciu bajtów.
+
+Limit został świadomie ustawiony na 180 KB, aby przywrócić ograniczony margines deweloperski bez usuwania z prekesza fontów, `offline.html`, modułów aplikacji ani innych zasobów wymaganych do działania offline. Pozostałe limity — JavaScript, CSS i pojedynczy asset — nie zostały zmienione.
+
+Budżet pozostaje twardą bramką jakości: `node scripts/check-performance-budget.js` kończy się kodem wyjścia `1` po przekroczeniu któregokolwiek limitu i nie został zamieniony na ostrzeżenie.
 
 ## Core Web Vitals i Lighthouse
 

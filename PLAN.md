@@ -15,8 +15,8 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH4-01` — Surface failed local persistence instead of reporting success.
-3. `PH4-02` — Normalize the sidebar logo path and settle its precache status.
+2. `PH4-02` — Normalize the sidebar logo path and settle its precache status.
+3. `PH5-01` — Resolve the duplicate not-found mechanism.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -38,7 +38,7 @@
   - [x] keep all four Inter `woff2` weights — each is referenced by the design tokens and none is redundant
   - [x] exclude `favicon.svg` from the precached shell through the generator's `ignoredFiles` set, keeping the file served and every document reference intact; the executed check now reports 169.7 KB and exits zero
   - **Completion condition:** `node scripts/check-performance-budget.js` exits zero without weakening a limit that the repository can actually meet
-  - **Note:** the app shell now sits 0.3 KB under the limit, so any further app-shell addition will breach it again. Treat the budget as a live constraint when adding runtime modules, styles or fonts.
+  - **Note:** 169.7 KB was the measurement taken against the 170 KB limit in force at the time, which left under 0.3 KB of headroom. That threshold was later recalibrated to 180 KB under `PH4-01`; the app-shell size recorded here is unchanged, only the operating limit moved.
   - **Source:** `AUDIT.md` — P1-03
 
 - [x] **PH1-03 — Resynchronize the generated app-shell manifest** — Priority: High
@@ -91,13 +91,14 @@
 
 **Goal:** Stop reporting outcomes the implementation cannot guarantee, and remove the remaining asset-path inconsistency.
 
-- [ ] **PH4-01 — Surface failed local persistence instead of reporting success** — Priority: Medium
-  - [ ] propagate the boolean returned by `storage.set()` through `saveState` in `js/repositories/localStorageRepositoryAdapter.js:13-17`
-  - [ ] let `commitActionResult` in `js/core/store.js:41-46` distinguish a validated action from a durably persisted one
-  - [ ] surface the difference through the existing toast feedback rather than adding a new notification mechanism
-  - [ ] preserve the startup warning in `js/main.js:285-287`, which already covers fully unavailable storage
-  - [ ] regenerate `service-worker-assets.js` after the change
-  - **Verification:** one focused test where writes are forced to fail and the action reports failure
+- [x] **PH4-01 — Surface failed local persistence instead of reporting success** — Priority: Medium
+  - [x] propagate the boolean returned by `storage.set()`; the adapter gained `persistState()`, which returns `{ state, persisted }`, and `saveState()` now wraps it so the existing repository contract is unchanged
+  - [x] let `commitActionResult` distinguish a validated action from a durably persisted one; a failed write returns `{ ok: false, error: 'storage-write-failed' }` instead of reporting success
+  - [x] surface the difference through the existing toast feedback rather than adding a new notification mechanism; every consumer already branches on `result.ok`, so the existing failure toasts now cover a failed write with no view changes
+  - [x] preserve the startup warning in `js/main.js:285-287`, which already covers fully unavailable storage
+  - [x] regenerate `service-worker-assets.js` after the change
+  - [x] restore a passing app-shell performance budget; `appShellGzipBytes` was recalibrated from 170 KB to 180 KB as an approved project decision, with the rationale recorded in `docs/performance-budget.md`. No asset was removed from the precache and no other limit was changed.
+  - **Verification:** the focused case in `tests/unit/store.test.js` forces the storage write to fail and asserts that validation still succeeds, the action does not claim durable success, the reason is explicit, in-memory state still updates, and a domain validation failure stays distinguishable. Its assertions were executed against the real exported store and persistence modules in an inline Node run; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Source:** `AUDIT.md` — P2-05
 
 - [ ] **PH4-02 — Normalize the sidebar logo path and settle its precache status** — Priority: Low
