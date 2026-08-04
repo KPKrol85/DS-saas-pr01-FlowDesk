@@ -69,6 +69,42 @@ describe('ui components', () => {
     wrapper.remove();
   });
 
+  it('announces validation errors through a shared status region on every field type', () => {
+    const fields = {
+      input: render(inputField({ id: 'name', label: 'Name', helper: 'Full name' })),
+      select: render(selectField({ id: 'status', label: 'Status', options: [{ value: 'a', label: 'A' }] })),
+      textarea: render(textareaField({ id: 'notes', label: 'Notes' }))
+    };
+
+    for (const [id, wrapper] of [
+      ['name', fields.input],
+      ['status', fields.select],
+      ['notes', fields.textarea]
+    ]) {
+      document.body.appendChild(wrapper);
+
+      const control = document.getElementById(id);
+      const errorRegion = document.getElementById(`${id}Error`);
+
+      expect(errorRegion.getAttribute('role')).toBe('status');
+      expect(errorRegion.textContent).toBe('');
+      expect(control.getAttribute('aria-invalid')).toBe('false');
+      expect(control.getAttribute('aria-describedby')).toContain(`${id}Error`);
+
+      setFieldError(id, 'Pole jest wymagane.');
+
+      expect(errorRegion.textContent).toBe('Pole jest wymagane.');
+      expect(control.getAttribute('aria-invalid')).toBe('true');
+      expect(control.getAttribute('aria-describedby')).toContain(`${id}Error`);
+
+      setFieldError(id);
+
+      expect(errorRegion.textContent).toBe('');
+      expect(control.getAttribute('aria-invalid')).toBe('false');
+      wrapper.remove();
+    }
+  });
+
   it('renders safe page headers, empty states, and tables', () => {
     const header = render(pageHeader({ title: '<Title>', description: '<Description>' }));
     const empty = render(emptyState({ title: '<Empty>', description: '<Details>', iconName: 'projects' }));

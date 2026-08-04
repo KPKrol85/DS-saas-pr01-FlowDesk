@@ -13,7 +13,10 @@ const errorAttributes = (id, error, helper = '') => `${error ? ' aria-invalid="t
 
 const helperMarkup = (id, helper) => (helper ? `<span class="input__helper" id="${escapeAttribute(`${id}Helper`)}">${escapeHTML(helper)}</span>` : '');
 
-const errorMarkup = (id, error = '') => `<span class="input__error" id="${escapeAttribute(`${id}Error`)}">${escapeHTML(error)}</span>`;
+// The error element is a status region so a validation message written by setFieldError is
+// announced when it appears. It stays in the DOM while empty, which is what makes the
+// later text change announceable, and unchanged text is not re-announced.
+const errorMarkup = (id, error = '') => `<span class="input__error" id="${escapeAttribute(`${id}Error`)}" role="status">${escapeHTML(error)}</span>`;
 
 const errorClassNames = ['input__field--error', 'input__select--error', 'input__textarea--error'];
 

@@ -15,8 +15,8 @@
 ## Current priorities
 
 1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH3-02` — Communicate form validation failures at the moment they occur.
-3. `PH4-01` — Surface failed local persistence instead of reporting success.
+2. `PH4-01` — Surface failed local persistence instead of reporting success.
+3. `PH4-02` — Normalize the sidebar logo path and settle its precache status.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -78,12 +78,13 @@
   - **Verification:** the focused case in `tests/unit/components.test.js` asserts that exactly one link carries `aria-current="page"`, that it sits on the active route in both renderers, and that it moves on a route change. Its assertions were executed against the real module in a Node sandbox; Vitest itself could not run because its native binding was unavailable in the implementation environment.
   - **Source:** `AUDIT.md` — P2-01
 
-- [ ] **PH3-02 — Communicate form validation failures at the moment they occur** — Priority: Medium
-  - [ ] choose one mechanism: make the error element in `js/components/formControls.js:16` a status region, or move focus to the first invalid control on failed submit
-  - [ ] apply it so every form built from `inputField`, `selectField` and `textareaField` benefits, starting with the login submit handler (`js/views/loginView.js:75-94`)
-  - [ ] preserve the existing `aria-invalid` and `aria-describedby` wiring, which is already correct
-  - [ ] regenerate `service-worker-assets.js` after the change
-  - **Verification:** one focused test covering a failed submit and the resulting announcement or focus placement
+- [x] **PH3-02 — Communicate form validation failures at the moment they occur** — Priority: Medium
+  - [x] choose one mechanism: the shared error element rendered by `errorMarkup()` is now a `role="status"` region, so a message written by `setFieldError()` is announced when it appears. Focus movement was not added, because every consumer already routes through `setFieldError()` and one mechanism is sufficient.
+  - [x] apply it so every form built from `inputField`, `selectField` and `textareaField` benefits; all three call the same `errorMarkup()`, so no view holds its own implementation and the login submit handler needed no change
+  - [x] preserve the existing `aria-invalid` and `aria-describedby` wiring, which is already correct
+  - [x] regenerate `service-worker-assets.js` after the change; the version advanced from `fb6b62e8d43d` to `beb4ccc11c57`
+  - **Verification:** the focused case in `tests/unit/components.test.js` covers all three field types — the region carries `role="status"`, a written message appears while `aria-invalid` flips to `true`, `aria-describedby` keeps pointing at the error id, and clearing removes both. Assertions were executed against the real exported module in an inline Node run; Vitest itself could not run because its native binding was unavailable in the implementation environment.
+  - **Note:** the announcement was not verified with an actual screen reader. `role="status"` was chosen over `role="alert"` as the least disruptive valid configuration, since the user has just submitted and nothing else is speaking.
   - **Source:** `AUDIT.md` — P2-02
 
 ## Phase 4 — State resilience and asset consistency

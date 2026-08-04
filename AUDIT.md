@@ -133,6 +133,7 @@ None detected.
 - **Impact:** A screen reader user submitting the login form — the entry point to the entire application — receives no notification that submission failed. The message is discoverable only by navigating back to the field, since the association is already correct. The same pattern applies to every other form built from these helpers.
 - **Recommended direction:** Make the error element a status region, or move focus to the first invalid control on failed submit, so the failure is communicated at the moment it occurs. One mechanism is sufficient.
 - **Verification criteria:** A failed submit either announces the error through assistive technology or places focus on the first invalid control.
+- **Resolution status:** Addressed after this audit date under `PLAN.md` item `PH3-02`. `errorMarkup()` now renders the shared error element as a `role="status"` region, which covers `inputField`, `selectField` and `textareaField` without per-view code. Announcement behavior has not been confirmed with a screen reader, so this finding should be re-verified during the final verification phase rather than treated as closed.
 
 ### [P2-03] Sidebar logo uses a relative path and sits outside the precached app shell
 
