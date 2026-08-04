@@ -3,7 +3,8 @@
 **Audit date:** 2026-08-03
 **Project type:** Frontend-only static SPA — Service Management Dashboard demo (vanilla HTML/CSS/JS ES modules, no framework, no bundler, no backend)
 **Audit mode:** Final repository and implementation review
-**Current readiness:** Needs important fixes
+**Readiness at audit date:** Needs important fixes
+**Current readiness:** Ready within verified scope — see section 10
 
 ## 1. Executive assessment
 
@@ -202,9 +203,11 @@ None detected.
 - **Potential value:** A measurement would establish whether the layered source architecture has a first-visit cost worth addressing, and would replace assumption with evidence.
 - **Scope boundary:** Optional. No measurement was taken during this audit, and no performance regression is claimed. The layered CSS structure is a deliberate, documented architecture decision.
 
-## 8. Current readiness conclusion
+## 8. Readiness conclusion at the audit date
 
 **Status:** Needs important fixes
+
+This section records the state on 2026-08-03 and is preserved unchanged. The current readiness assessment is in section 10.
 
 No P0 blocker exists, and the application architecture, data boundaries, escaping discipline and accessibility mechanisms are sound within the project's frontend-only scope. What is not currently sound is the contract between the repository and its own tooling: three executed gates fail, and the service worker's navigation handler contains a provable defect in its offline path.
 
@@ -217,3 +220,42 @@ For this specific project that means development can continue safely, but the re
 Judged as a frontend-only portfolio demo built deliberately without a framework, bundler or backend. The upper half of the score is earned: the layering is real and enforced rather than aspirational, stored data is validated as untrusted input, rendering is escaped consistently and is compatible with a strict CSP that most projects of this type would have to relax, accessibility is implemented in the components rather than asserted in documentation, demo content avoids fabricated real-world data, and the documentation is unusually disciplined about what the project is not.
 
 The deduction is for current contract drift rather than for design. Three of the project's own quality gates fail when run, the generated service-worker manifest no longer represents the sources it caches, and the navigation caching defect undermines the offline story the project documents. These are the checks a senior reviewer runs first, and they are the difference between a project that claims rigor and one that demonstrates it. A score of 8 or above becomes defensible once the gates pass on a clean checkout and the service worker navigation path is corrected; the accessibility and persistence refinements in P2 would consolidate it further.
+
+## 10. Post-audit verification
+
+This section records work completed after the 2026-08-03 audit. Sections 1 to 9 are preserved as the audit-date record and are not rewritten.
+
+**Current readiness:** Ready within verified scope
+
+**Rating after remediation:** 8/10. The conditions the audit named for that score are met: the quality gates pass on a clean checkout and the service worker navigation path is corrected. The remaining distance to a higher score is verification breadth rather than implementation quality — no screen-reader confirmation, no cross-browser matrix beyond Chromium, and no measured performance results.
+
+### Findings resolved
+
+All four P1 findings and all six P2 findings carry a `Resolution status` line in their own entries. In summary: P1-01 regenerated app-shell manifest, P1-02 per-document navigation caching with a rebuilt redirected fallback, P1-03 app-shell payload reduced and the budget recalibrated to 180 KB as an approved decision, P1-04 Prettier failures cleared and line endings normalized, P2-01 `aria-current` in application navigation, P2-02 shared error status region, P2-03 canonical logo path and deliberate precache, P2-04 single not-found mechanism, P2-05 failed local writes reported instead of confirmed, P2-06 changelog CI claim corrected.
+
+### Final gate result
+
+`npm run check` completed end to end with exit code 0 in a fresh Windows worktree created from commit `e5a6ff2`, after a platform-correct `npm ci`. Executed in the order defined by `package.json`:
+
+- PWA manifest check — passed, 90 assets, version `76feb9d54448`
+- ESLint, Stylelint and Prettier — passed
+- Vitest unit — 17 files, 103 tests passed
+- Vitest integration — 5 files, 14 tests passed
+- Playwright end-to-end — 36 tests passed
+- Playwright accessibility — 12 tests passed
+- CSS and JavaScript builds — completed; the build regenerated `css/style.min.css`, which had been stale relative to `css/components/badge.css` and `css/views/dashboard.css`
+- Performance budget — passed: JavaScript 57.5 KB / 85.0 KB, CSS 15.3 KB / 28.0 KB, app shell 172.3 KB / 180.0 KB
+
+The Vitest file count differs from the 21 recorded at the audit date because `tests/unit/service-worker-navigation.test.js` was added during remediation, bringing the total to 22. The Playwright spec count is unchanged and is reported here split into 4 end-to-end and 1 accessibility spec.
+
+One browser test required correction during this run: `tests/e2e/visual-smoke.spec.js` expected a legal-page return link named `Otwórz demo`, while the pages expose `Wróć do logowania FlowDesk`. The selector was aligned to the markup; no application source changed.
+
+### Limitations that still apply
+
+The original limitations in section 2 described the audit environment and remain an accurate record of it. The following apply to the current state:
+
+- Playwright runs Chromium only. No cross-browser verification was performed.
+- The accessibility suite is axe-based and is not a formal WCAG conformance claim. No screen-reader verification was performed for the navigation `aria-current` or the form error status region.
+- Contrast compliance was not verified through computed-style analysis.
+- No performance measurement beyond the repository's own gzip budget was taken. No Lighthouse run was performed.
+- No live deployment was inspected and no deployment success is claimed.

@@ -118,7 +118,7 @@ test('public legal pages share theme preference with dashboard', async ({ page }
     await expect(page.getByRole('heading', { name: legalPage.heading, exact: true })).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/theme-dark/);
     await expect(page.getByRole('button', { name: 'Włącz jasny motyw' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Otwórz demo', exact: true })).toHaveAttribute('href', '/#/login');
+    await expect(page.getByRole('link', { name: 'Wróć do logowania FlowDesk', exact: true })).toHaveAttribute('href', '/#/login');
   }
 
   await page.goto('/#/login');

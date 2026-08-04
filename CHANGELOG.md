@@ -26,6 +26,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 
 - Fixed the theme toggle icon and accessible label so they stay synchronized with the persisted theme preference.
 - Fixed application navigation to expose the active route with `aria-current="page"` in both the sidebar and the mobile drawer, so the current view is no longer conveyed by styling alone.
+- Fixed a stale accessible-name expectation in the legal-page browser test, which looked for a return link named `Otwórz demo` while the pages expose `Wróć do logowania FlowDesk`; the test was aligned to the markup and no page content changed.
 - Fixed shared form controls to render their error element as a status region, so a validation message is announced when it appears instead of only being reachable by returning to the field.
 - Fixed state-changing actions to report a failed local write instead of confirming success, by propagating the storage result through the persistence adapter into the existing action result and failure toasts.
 - Fixed service worker navigation caching so each document is cached under its own URL instead of one fixed key, preventing a legal page from overwriting the application shell, and rebuilt redirected cached responses so an uncached document falls back to `offline.html` instead of failing the navigation.
@@ -42,6 +43,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Added `LICENSE.md` with the proprietary KP_Code project license and referenced it from `package.json`.
 - Standardized project terminology so a project is documented as a service job or service order.
 - Corrected the 1.0.0 changelog entry, which credited a CI setup the repository does not contain, to describe the local `npm run check` gate that it actually ships.
+- Recorded the completed local quality-gate verification in `AUDIT.md`: `npm run check` passes end to end on a clean Windows checkout, covering 103 unit tests, 14 integration tests, 36 end-to-end tests, 12 accessibility tests, both builds and the performance budget.
 - Added `docs/future-saas-readiness.md` and visual QA evidence for the main desktop and mobile views under `docs/qa/`.
 
 ### Build and Tooling

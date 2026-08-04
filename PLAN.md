@@ -14,21 +14,20 @@
 
 ## Current priorities
 
-1. `PH1-01` — Confirm the Prettier and lint checks on a fresh Windows checkout.
-2. `PH6-01` — Execute and record the complete quality gate.
+The audit-remediation plan is complete. Every required item in Phases 1 to 6 is closed and `npm run check` passes end to end. Remaining work is limited to the optional improvements below, none of which is required for release or portfolio presentation.
 
 ## Phase 1 — Restore the documented quality gate
 
 **Goal:** Make `npm run check` executable end to end, so every later phase can be verified against a gate that actually passes.
 
-- [ ] **PH1-01 — Eliminate the Prettier failures blocking `npm run lint`** — Priority: High
+- [x] **PH1-01 — Eliminate the Prettier failures blocking `npm run lint`** — Priority: High
   - [x] add a repository line-ending policy in `.gitattributes` (`* text=auto eol=lf`, CRLF preserved for `*.bat` and `*.cmd`)
   - [x] remove the stray consecutive blank line in `js/components/topbar.js` and in `regulamin.html`
   - [x] determine why `package.json`, `icons.md` and `LICENSE.md` fail `prettier --check`; `package.json` and `LICENSE.md` differed from expected output only by carriage returns, while `icons.md` additionally required one blank line between an HTML comment and the following block
   - [x] normalize those three files to LF at byte level and apply the single `icons.md` whitespace correction, without reformatting unrelated content
-  - [ ] re-run the checks on a fresh Windows checkout to confirm the `.gitattributes` policy holds there
+  - [x] re-run the checks on a fresh Windows checkout to confirm the `.gitattributes` policy holds there
   - **Completion condition:** `npx prettier . --check` reports no files and `npm run lint` exits zero on both a Windows and a Linux checkout
-  - **Verified so far:** on Linux, `npx prettier . --check`, `npx eslint .` and `npx stylelint "css/**/*.css"` were executed and passed. `npm run lint` as one chained command exceeded the available execution window, so its three steps were run individually instead.
+  - **Verification:** on Windows, a fresh worktree created from `e5a6ff2` with a platform-correct `npm ci` ran `npx prettier . --check` and `npm run lint`, both passing, which confirms the `.gitattributes` normalization holds on a clean checkout. On Linux, `npx prettier . --check`, `npx eslint .` and `npx stylelint "css/**/*.css"` were executed and passed; `npm run lint` as one chained command exceeded the available execution window there, so its three steps were run individually.
   - **Source:** `AUDIT.md` — P1-04
 
 - [x] **PH1-02 — Bring the precached app shell within its gzip budget** — Priority: High
@@ -134,12 +133,14 @@
 
 **Goal:** Confirm the full gate passes on a clean checkout, on evidence rather than assumption.
 
-- [ ] **PH6-01 — Execute and record the complete quality gate** — Priority: High
-  - [ ] run `npm run check` on a clean checkout with a platform-correct dependency installation
-  - [ ] record the outcome of the two suites that could not be executed during the 2026-08-03 audit: 21 Vitest files and 5 Playwright specs
-  - [ ] regenerate `service-worker-assets.js` last, after all app-shell changes from Phases 2 to 4 are in place
-  - [ ] update the readiness statement in `AUDIT.md` once the P1 findings are resolved and the gate passes
+- [x] **PH6-01 — Execute and record the complete quality gate** — Priority: High
+  - [x] correct the stale accessible-name expectation in `tests/e2e/visual-smoke.spec.js`; the legal pages expose the return link as `Wróć do logowania FlowDesk`, so the selector was aligned to the markup rather than the markup to the test
+  - [x] run `npm run check` end to end on a clean checkout with a platform-correct dependency installation; the gate completed with exit code 0 in a fresh Windows verification worktree created from `e5a6ff2` after `npm ci`
+  - [x] record the outcome of the two suites that could not be executed during the 2026-08-03 audit. Vitest: 17 unit files with 103 tests and 5 integration files with 14 tests, all passing. Playwright: 36 end-to-end tests and 12 accessibility tests, all passing. The audit counted 21 Vitest files and 5 Playwright specs; the Vitest total is now 22 files because `tests/unit/service-worker-navigation.test.js` was added under `PH2-01`, and the Playwright spec total is unchanged, only reported split by suite.
+  - [x] regenerate `service-worker-assets.js` last, after all app-shell changes from Phases 2 to 4 are in place; the committed manifest is version `76feb9d54448` with 90 assets and `npm run pwa:check` exits zero
+  - [x] update the readiness statement in `AUDIT.md` once the P1 findings are resolved and the gate passes
   - **Completion condition:** `npm run check` completes successfully end to end and the result is reflected in the audit readiness status
+  - **Verification:** the full chain passed in order — PWA manifest check, ESLint, Stylelint, Prettier, unit and integration Vitest, Playwright end-to-end, Playwright accessibility, CSS and JavaScript builds, and the performance budget at 57.5 KB JavaScript, 15.3 KB CSS and 172.3 KB app shell. The final build regenerated `css/style.min.css`, which had been stale relative to `css/components/badge.css` and `css/views/dashboard.css`; the regenerated file matches those canonical sources.
   - **Depends on:** `PH1-01`, `PH1-02`, `PH1-03`, `PH2-01`, `PH3-01`, `PH3-02`, `PH4-01`, `PH4-02`, `PH5-01`, `PH5-02`
 
 ## Optional future improvements
