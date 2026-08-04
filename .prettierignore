@@ -1,6 +1,5 @@
 node_modules/
-css/style.min.css
-js/main.min.js
+dist/
 assets/fonts/
 README.md
 plan.md

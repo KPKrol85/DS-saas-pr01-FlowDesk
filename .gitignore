@@ -55,3 +55,6 @@ temp/
 
 # Local Netlify folder
 .netlify
+
+# Production build output
+/dist/

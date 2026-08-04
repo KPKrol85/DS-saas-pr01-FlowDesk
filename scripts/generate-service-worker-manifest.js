@@ -4,28 +4,35 @@ import { dirname, extname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const outputPath = resolve(projectRoot, 'service-worker-assets.js');
+const distDir = resolve(projectRoot, 'dist');
+const outputPath = resolve(distDir, 'service-worker-assets.js');
 const checkOnly = process.argv.includes('--check');
 
-const explicitAssets = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/css/style.css'];
-// assets/logo contributes only logo.svg; the extension filter keeps logo.png out of the shell.
-const runtimeDirectories = ['css', 'js', 'assets/fonts', 'assets/icons', 'assets/logo'];
+// The app shell is inventoried from the built artifact only. Nothing here falls back to the
+// repository source tree, so a missing or stale dist/ fails loudly instead of validating sources.
+const explicitAssets = ['/', '/index.html', '/offline.html', '/manifest.webmanifest'];
+const runtimeDirectories = ['build', 'assets/fonts', 'assets/icons', 'assets/logo'];
 const allowedExtensions = new Set(['.css', '.js', '.woff2', '.svg']);
-// favicon.svg is served normally but stays out of the precached shell: it is not required for offline operation.
-const ignoredFiles = new Set(['/css/style.min.css', '/js/main.min.js', '/assets/icons/favicon/favicon.svg']);
+// service-worker.js loads the manifest, and the manifest cannot hash itself.
+const ignoredFiles = new Set(['/service-worker.js', '/service-worker-assets.js', '/assets/icons/favicon/favicon.svg']);
 
-const toAssetPath = (filePath) => `/${relative(projectRoot, filePath).split(sep).join('/')}`;
+const toAssetPath = (filePath) => `/${relative(distDir, filePath).split(sep).join('/')}`;
 
 const walk = (directory) => {
-  const absoluteDirectory = resolve(projectRoot, directory);
+  const absoluteDirectory = resolve(distDir, directory);
   if (!existsSync(absoluteDirectory)) return [];
 
   return readdirSync(absoluteDirectory, { withFileTypes: true }).flatMap((entry) => {
     const absoluteEntry = resolve(absoluteDirectory, entry.name);
-    if (entry.isDirectory()) return walk(relative(projectRoot, absoluteEntry));
+    if (entry.isDirectory()) return walk(relative(distDir, absoluteEntry));
     return [absoluteEntry];
   });
 };
+
+if (!existsSync(distDir)) {
+  console.error('Missing dist/. Run npm run build first.');
+  process.exit(1);
+}
 
 const generatedAssets = runtimeDirectories
   .flatMap(walk)
@@ -41,9 +48,9 @@ const appShell = [...new Set([...explicitAssets, ...generatedAssets])].sort((lef
 
 const hash = createHash('sha256');
 appShell.forEach((assetPath) => {
-  const filePath = assetPath === '/' ? resolve(projectRoot, 'index.html') : resolve(projectRoot, assetPath.slice(1));
+  const filePath = assetPath === '/' ? resolve(distDir, 'index.html') : resolve(distDir, assetPath.slice(1));
   if (!existsSync(filePath)) {
-    throw new Error(`Missing app-shell asset: ${assetPath}`);
+    throw new Error(`Missing app-shell asset in dist: ${assetPath}`);
   }
   hash.update(assetPath);
   hash.update(readFileSync(filePath));
@@ -62,11 +69,11 @@ const currentContent = existsSync(outputPath) ? readFileSync(outputPath, 'utf8')
 
 if (checkOnly) {
   if (currentContent !== nextContent) {
-    console.error('service-worker-assets.js is out of date. Run npm run pwa:manifest.');
+    console.error('dist/service-worker-assets.js is out of date. Run npm run build.');
     process.exit(1);
   }
-  console.log(`service-worker-assets.js is up to date (${appShell.length} assets, ${manifest.version}).`);
+  console.log(`dist/service-worker-assets.js is up to date (${appShell.length} assets, ${manifest.version}).`);
 } else {
   writeFileSync(outputPath, nextContent);
-  console.log(`Generated service-worker-assets.js (${appShell.length} assets, ${manifest.version}).`);
+  console.log(`Generated dist/service-worker-assets.js (${appShell.length} assets, ${manifest.version}).`);
 }

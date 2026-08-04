@@ -145,9 +145,11 @@ The audit-remediation plan is complete. Every required item in Phases 1 to 6 is 
 
 ## Optional future improvements
 
-- [ ] **O-01 — Clarify the role of the unserved minified artifacts**
+- [x] **O-01 — Clarify the role of the unserved minified artifacts**
   - **Value:** `css/style.min.css` and `js/main.min.js` are tracked and rebuilt by `npm run check` but never served, since `index.html` loads the sources directly. Terser does not bundle, so `js/main.min.js` still imports unminified siblings. Documenting them as reference output, or deriving the served assets from them, would remove a standing ambiguity about which files represent the production contract.
   - **Scope boundary:** Non-blocking. The exclusion is explicit in the generator's `ignoredFiles` set and nothing breaks at runtime.
+  - **Resolution:** superseded by the Vite migration rather than by documentation. The ambiguity is removed at its source: `dist/` is now the only production artefact, Vite bundles and hashes the output that production HTML references, and the two unserved minified files were deleted. `docs/adr/005-build-without-bundler.md` is marked superseded and keeps its historical record; `docs/adr/009-vite-production-build.md` documents the new contract.
+  - **Verification:** implementation is complete and statically checked. The production build, PWA check, performance budget and browser suites still require a Windows run, because the Linux sandbox cannot load the platform-specific Rollup binary. See the Windows verification block in the migration report.
 
 - [ ] **O-02 — Move security headers into hosting configuration**
   - **Value:** The Content Security Policy exists only as a `<meta http-equiv>` tag in `index.html`; the four static pages carry none. A new `_headers` file alongside `_redirects` would apply one policy across every document and allow directives a meta tag cannot express, notably `frame-ancestors`. The runtime already emits no inline styles or handlers, so a strict policy carries little risk.

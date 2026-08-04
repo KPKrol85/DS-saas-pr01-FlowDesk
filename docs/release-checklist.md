@@ -55,9 +55,9 @@ git diff --check
 
 ## Generated files policy
 
-- Update `css/style.min.css` only through `npm run build:css` or `npm run build`.
-- Update `js/main.min.js` only through `npm run build:js` or `npm run build`.
-- Update `service-worker-assets.js` only through `npm run pwa:manifest` or `npm run build`.
+- `dist/` is the only generated production artifact. It is Git-ignored, produced by `npm run build`, and never edited by hand.
+- Update `dist/service-worker-assets.js` only through `npm run build` or `npm run pwa:manifest`.
+- Netlify publishes `dist` through `netlify.toml`; the repository root is never published.
 - Do not manually edit generated or minified files.
 - Do not commit local QA reports, Playwright run state, logs, caches or dependency folders.
 

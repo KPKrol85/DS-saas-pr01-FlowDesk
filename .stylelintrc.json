@@ -1,6 +1,6 @@
 {
   "extends": ["stylelint-config-standard"],
-  "ignoreFiles": ["css/style.min.css"],
+  "ignoreFiles": ["dist/**"],
   "rules": {
     "alpha-value-notation": "number",
     "color-function-alias-notation": null,

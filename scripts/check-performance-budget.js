@@ -3,8 +3,10 @@ import { resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import vm from 'node:vm';
 
+// Measured against the built artifact only; there is no fallback to repository source files.
 const projectRoot = resolve(process.cwd());
-const manifestPath = resolve(projectRoot, 'service-worker-assets.js');
+const distDir = resolve(projectRoot, 'dist');
+const manifestPath = resolve(distDir, 'service-worker-assets.js');
 
 const budgets = {
   jsGzipBytes: 85 * 1024,
@@ -17,7 +19,7 @@ const formatKb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;
 
 const loadManifest = () => {
   if (!existsSync(manifestPath)) {
-    throw new Error('Missing service-worker-assets.js. Run npm run pwa:manifest first.');
+    throw new Error('Missing dist/service-worker-assets.js. Run npm run build first.');
   }
 
   const sandbox = { self: {} };
@@ -26,8 +28,11 @@ const loadManifest = () => {
 };
 
 const readAsset = (assetPath) => {
-  const filePath = assetPath === '/' ? resolve(projectRoot, 'index.html') : resolve(projectRoot, assetPath.slice(1));
-  return existsSync(filePath) ? readFileSync(filePath) : Buffer.from('');
+  const filePath = assetPath === '/' ? resolve(distDir, 'index.html') : resolve(distDir, assetPath.slice(1));
+  if (!existsSync(filePath)) {
+    throw new Error(`Missing production asset referenced by the manifest: ${assetPath}`);
+  }
+  return readFileSync(filePath);
 };
 
 const gzipSize = (buffer) => gzipSync(buffer).byteLength;

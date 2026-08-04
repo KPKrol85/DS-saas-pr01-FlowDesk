@@ -12,11 +12,10 @@ Lista plików cache jest generowana przez:
 npm run pwa:manifest
 ```
 
-Skrypt `scripts/generate-service-worker-manifest.js` tworzy `service-worker-assets.js`. Manifest obejmuje tylko runtime app-shell:
+Skrypt `scripts/generate-service-worker-manifest.js` tworzy `dist/service-worker-assets.js` po zakończeniu builda Vite i inwentaryzuje wyłącznie zawartość `dist/`. Manifest obejmuje tylko runtime app-shell:
 
 - `/`, `index.html`, `offline.html`, `manifest.webmanifest`
-- źródłowe pliki CSS wymagane przez `css/style.css`
-- źródłowe moduły JavaScript aplikacji
+- wygenerowane, hashowane pakiety CSS i JavaScript z `dist/build/`
 - fonty `woff2`
 - ikony PWA
 - `assets/logo/logo.svg` — logo powłoki renderowane przez sidebar i drawer, precache'owane celowo, aby było dostępne przy zimnym starcie offline
@@ -27,8 +26,8 @@ Manifest celowo pomija:
 - `tests`
 - `docs`
 - screenshoty i wyniki testów
-- `css/style.min.css`
-- `js/main.min.js`
+- pliki źródłowe z repozytorium — generator nigdy nie sięga poza `dist/`
+- `service-worker.js` i `service-worker-assets.js` — manifest nie hashuje sam siebie
 - `assets/logo/logo.png` — wariant rastrowy nieużywany w runtime; filtr rozszerzeń generatora dopuszcza z tego katalogu wyłącznie `.svg`
 - `assets/icons/favicon/favicon.svg` — serwowany normalnie, ale niewymagany do działania offline
 
@@ -38,7 +37,7 @@ Walidacja:
 npm run pwa:check
 ```
 
-`npm run build` generuje manifest automatycznie przez `prebuild`, a `npm run check` sprawdza, czy manifest jest aktualny.
+`npm run build` uruchamia Vite, a następnie generuje manifest. `npm run check` buduje `dist/` przed walidacjami i sprawdza aktualność manifestu; brak lub nieaktualność `dist/` kończy walidację błędem.
 
 ## Cache strategies
 
@@ -84,7 +83,7 @@ Po pierwszej udanej wizycie service worker precache'uje app-shell. Przy braku si
 - aplikacja pokazuje routing i widoki dostępne z lokalnego stanu,
 - nawigacja do dokumentu spoza aplikacji (np. `/regulamin.html`) zwraca ten dokument tylko jeśli był wcześniej odwiedzony online,
 - jeśli żądany dokument nie jest w cache, użytkownik dostaje `offline.html`,
-- odpowiedź z cache, która powstała po przekierowaniu (`response.redirected`), jest odbudowywana jako zwykła odpowiedź; przeglądarka odrzuca przekierowaną odpowiedź w `respondWith` dla nawigacji. Dotyczy to lokalnego `npx serve`, który domyślnie przekierowuje `*.html` na adres bez rozszerzenia,
+- odpowiedź z cache, która powstała po przekierowaniu (`response.redirected`), jest odbudowywana jako zwykła odpowiedź; przeglądarka odrzuca przekierowaną odpowiedź w `respondWith` dla nawigacji. Dotyczyło to lokalnego `npx serve`, który przekierowywał `*.html` na adres bez rozszerzenia; zachowanie pozostaje zabezpieczone także dla hostingu przekierowującego adresy dokumentów,
 - przyszłe requesty `/api/*` powinny zwracać kontrolowany błąd offline i przejść przez kolejkę sync dopiero w etapie backend/offline-first.
 
 ## Storage unavailable

@@ -3,7 +3,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['node_modules/**', 'css/style.min.css', 'js/main.min.js', '.lighthouseci/**', 'test-results/**']
+    ignores: ['node_modules/**', 'dist/**', '.lighthouseci/**', 'test-results/**']
   },
   js.configs.recommended,
   {
@@ -20,7 +20,7 @@ export default [
     }
   },
   {
-    files: ['service-worker.js', 'service-worker-assets.js'],
+    files: ['service-worker.js'],
     languageOptions: {
       globals: {
         ...globals.serviceworker

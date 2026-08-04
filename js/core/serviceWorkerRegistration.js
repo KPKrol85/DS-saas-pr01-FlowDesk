@@ -41,6 +41,9 @@ export const registerServiceWorker = () => {
   });
 
   if (!('serviceWorker' in navigator)) return;
+  // The production service worker precaches hashed build output, so it is registered only for a
+  // built artifact. Registering it against the dev server would serve stale modules.
+  if (!import.meta.env.PROD) return;
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!reloadAfterUpdate) return;

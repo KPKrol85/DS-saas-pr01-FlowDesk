@@ -31,10 +31,10 @@ Niezalogowany użytkownik jest kierowany do `#/login`. Do demonstracyjnego logow
 - **Runtime:** HTML5, CSS, Vanilla JavaScript ES Modules i routing oparty na hash fragmentach.
 - **API przeglądarki:** `localStorage`, Service Worker, Cache API, Web App Manifest i `Blob`.
 - **Style:** design tokens oraz źródłowe warstwy `base`, `layout`, `components` i `views`.
-- **Build:** PostCSS, `postcss-import`, cssnano i Terser.
+- **Build:** Vite 7 (multi-page, bundling, hashowane assety) z PostCSS i `postcss-import`.
 - **Testy:** Vitest z jsdom, Playwright oraz `@axe-core/playwright`.
 - **Jakość kodu:** ESLint, Stylelint, Prettier i własne walidatory PWA oraz budżetu wydajności.
-- **Development lokalny:** `serve`, uruchamiany przez skrypt npm.
+- **Development lokalny:** serwer deweloperski Vite na porcie 8181.
 
 ### Architektura
 
@@ -68,8 +68,7 @@ digital-studio-saas-pr01-flowdesk/
 |   |-- layout.css
 |   |-- components.css
 |   |-- views.css
-|   |-- style.css
-|   `-- style.min.css
+|   `-- style.css
 |-- docs/
 |   |-- adr/
 |   |-- qa/
@@ -91,8 +90,9 @@ digital-studio-saas-pr01-flowdesk/
 |-- index.html
 |-- manifest.webmanifest
 |-- service-worker.js
-|-- service-worker-assets.js
 |-- offline.html
+|-- vite.config.js
+|-- netlify.toml
 |-- package.json
 `-- README.md
 ```
@@ -108,13 +108,14 @@ npm run dev
 
 Na Windows można uruchomić `start-dev.bat`; launcher przechodzi do rootu repozytorium i wywołuje `npm run dev` po weryfikacji lokalnej instalacji zależności.
 
-Po uruchomieniu należy użyć adresu wypisanego przez `serve`. Projekt wymaga lokalnego serwera HTTP; uruchamianie `index.html` przez `file://` nie obsługuje poprawnie modułów, ścieżek absolutnych i service workera.
+Serwer deweloperski Vite startuje na `http://localhost:8181`. Projekt wymaga serwera HTTP; uruchamianie `index.html` przez `file://` nie obsługuje poprawnie modułów, ścieżek absolutnych i service workera. Service worker rejestruje się wyłącznie w buildzie produkcyjnym, więc development nie jest zanieczyszczany cache'em app-shell.
 
 ### Dostępne skrypty
 
 | Komenda | Zakres |
 | --- | --- |
-| `npm run dev` | Uruchamia statyczny serwer przez `serve`. |
+| `npm run dev` | Uruchamia serwer deweloperski Vite na porcie 8181. |
+| `npm run preview` | Serwuje zbudowany katalog `dist/` na porcie 4173. |
 | `npm run lint` | Uruchamia ESLint, Stylelint i `prettier --check`. |
 | `npm run format` | Formatuje obsługiwane pliki przez Prettier. |
 | `npm run test` | Uruchamia testy jednostkowe i integracyjne Vitest. |
@@ -122,12 +123,12 @@ Po uruchomieniu należy użyć adresu wypisanego przez `serve`. Projekt wymaga l
 | `npm run test:integration` | Uruchamia katalog `tests/integration`. |
 | `npm run test:e2e` | Uruchamia testy Playwright z katalogu `tests/e2e`. |
 | `npm run test:a11y` | Uruchamia testy Playwright i axe z katalogu `tests/a11y`. |
-| `npm run pwa:manifest` | Generuje `service-worker-assets.js`. |
+| `npm run pwa:manifest` | Generuje `dist/service-worker-assets.js`. |
 | `npm run pwa:check` | Sprawdza aktualność wygenerowanego manifestu app-shell. |
-| `npm run build` | Generuje manifest PWA oraz buduje minifikowane pliki CSS i JS. |
+| `npm run build` | Buduje `dist/` przez Vite i generuje manifest app-shell. |
 | `npm run perf:budget` | Sprawdza gzipowane limity zasobów app-shell. |
 | `npm run lighthouse` | Deleguje do `npm run perf:budget`; nie uruchamia Lighthouse CLI. |
-| `npm run check` | Uruchamia PWA check, lint, testy, build i budżet wydajności. |
+| `npm run check` | Lint, testy, build, PWA check, budżet wydajności, testy e2e i a11y. |
 
 ### Build i pliki generowane
 
@@ -135,13 +136,9 @@ Po uruchomieniu należy użyć adresu wypisanego przez `serve`. Projekt wymaga l
 npm run build
 ```
 
-Lifecycle `prebuild` najpierw generuje manifest app-shell. Następnie build tworzy trzy intencjonalnie śledzone pliki:
+`npm run build` uruchamia Vite, a następnie generuje `dist/service-worker-assets.js`. Produkcyjnym artefaktem jest wyłącznie katalog `dist/`: jest ignorowany przez Git, nie należy go edytować ręcznie i to jego publikuje Netlify.
 
-- `service-worker-assets.js` z `scripts/generate-service-worker-manifest.js`;
-- `css/style.min.css` z `css/style.css` przez PostCSS i cssnano;
-- `js/main.min.js` z `js/main.js` przez Terser.
-
-Nie należy edytować tych plików ręcznie. Build nie używa bundlera, nie tworzy katalogu `dist/`, a `build:js` minifikuje tylko entrypoint `js/main.js`. Aktualny runtime nadal ładuje źródłowe `css/style.css` i `js/main.js`, natomiast generator app-shell pomija pliki minifikowane.
+Build jest wielostronicowy i obejmuje `index.html`, trzy strony prawne oraz `offline.html`. Vite bunduje moduły ES, konsoliduje i minifikuje CSS oraz emituje hashowane pliki do `dist/build/`. Kanonicznymi źródłami pozostają `css/style.css` i `js/main.js`; produkcyjny HTML odwołuje się do wygenerowanych assetów, nie do plików źródłowych. Pliki o stabilnych adresach — fonty, ikony, logo, `manifest.webmanifest`, `service-worker.js`, `robots.txt`, `sitemap.xml` i `_redirects` — kopiuje jawna lista w `vite.config.js`. Szczegóły opisuje [`docs/adr/009-vite-production-build.md`](docs/adr/009-vite-production-build.md).
 
 ### Testy i walidacja
 
@@ -153,7 +150,7 @@ Główną lokalną bramką jakości jest:
 npm run check
 ```
 
-Skrypt wykonuje również build, dlatego może zaktualizować śledzone pliki generowane.
+Skrypt buduje `dist/` przed walidacjami, które go wymagają. Katalog `dist/` jest ignorowany przez Git, więc bramka nie modyfikuje śledzonych plików.
 
 ### Wdrożenie
 
@@ -245,10 +242,10 @@ Unauthenticated users are redirected to `#/login`. Demo access accepts a fiction
 - **Runtime:** HTML5, CSS, Vanilla JavaScript ES Modules, and hash-based routing.
 - **Browser APIs:** `localStorage`, Service Worker, Cache API, Web App Manifest, and `Blob`.
 - **Styling:** design tokens with source layers for `base`, `layout`, `components`, and `views`.
-- **Build:** PostCSS, `postcss-import`, cssnano, and Terser.
+- **Build:** Vite 7 (multi-page, bundling, hashed assets) with PostCSS and `postcss-import`.
 - **Testing:** Vitest with jsdom, Playwright, and `@axe-core/playwright`.
 - **Code quality:** ESLint, Stylelint, Prettier, and custom PWA and performance-budget validators.
-- **Local development:** `serve`, started through an npm script.
+- **Local development:** the Vite development server on port 8181.
 
 ### Architecture
 
@@ -282,8 +279,7 @@ digital-studio-saas-pr01-flowdesk/
 |   |-- layout.css
 |   |-- components.css
 |   |-- views.css
-|   |-- style.css
-|   `-- style.min.css
+|   `-- style.css
 |-- docs/
 |   |-- adr/
 |   |-- qa/
@@ -305,8 +301,9 @@ digital-studio-saas-pr01-flowdesk/
 |-- index.html
 |-- manifest.webmanifest
 |-- service-worker.js
-|-- service-worker-assets.js
 |-- offline.html
+|-- vite.config.js
+|-- netlify.toml
 |-- package.json
 `-- README.md
 ```
@@ -322,13 +319,14 @@ npm run dev
 
 On Windows, run `start-dev.bat`; the launcher moves to the repository root and calls `npm run dev` after verifying the local dependency installation.
 
-Use the address printed by `serve` after startup. The project requires a local HTTP server; opening `index.html` through `file://` does not correctly support modules, absolute paths, and the service worker.
+The Vite development server starts on `http://localhost:8181`. The project requires an HTTP server; opening `index.html` through `file://` does not correctly support modules, absolute paths, and the service worker. The service worker registers only in a production build, so development is never polluted by an app-shell cache.
 
 ### Available Scripts
 
 | Command | Scope |
 | --- | --- |
-| `npm run dev` | Starts a static server through `serve`. |
+| `npm run dev` | Starts the Vite development server on port 8181. |
+| `npm run preview` | Serves the built `dist/` directory on port 4173. |
 | `npm run lint` | Runs ESLint, Stylelint, and `prettier --check`. |
 | `npm run format` | Formats supported files through Prettier. |
 | `npm run test` | Runs the Vitest unit and integration suites. |
@@ -336,12 +334,12 @@ Use the address printed by `serve` after startup. The project requires a local H
 | `npm run test:integration` | Runs the `tests/integration` directory. |
 | `npm run test:e2e` | Runs Playwright tests from `tests/e2e`. |
 | `npm run test:a11y` | Runs Playwright and axe tests from `tests/a11y`. |
-| `npm run pwa:manifest` | Generates `service-worker-assets.js`. |
+| `npm run pwa:manifest` | Generates `dist/service-worker-assets.js`. |
 | `npm run pwa:check` | Verifies that the generated app-shell manifest is current. |
-| `npm run build` | Generates the PWA manifest and builds minified CSS and JS files. |
+| `npm run build` | Builds `dist/` through Vite and generates the app-shell manifest. |
 | `npm run perf:budget` | Checks gzipped app-shell asset limits. |
 | `npm run lighthouse` | Delegates to `npm run perf:budget`; it does not run Lighthouse CLI. |
-| `npm run check` | Runs the PWA check, linting, tests, build, and performance budget. |
+| `npm run check` | Lint, tests, build, PWA check, performance budget, e2e and a11y suites. |
 
 ### Build and Generated Files
 
@@ -349,13 +347,9 @@ Use the address printed by `serve` after startup. The project requires a local H
 npm run build
 ```
 
-The `prebuild` lifecycle first generates the app-shell manifest. The build then creates three intentionally tracked files:
+`npm run build` runs Vite and then generates `dist/service-worker-assets.js`. The only production artifact is `dist/`: it is Git-ignored, must not be edited by hand, and is what Netlify publishes.
 
-- `service-worker-assets.js` from `scripts/generate-service-worker-manifest.js`;
-- `css/style.min.css` from `css/style.css` through PostCSS and cssnano;
-- `js/main.min.js` from `js/main.js` through Terser.
-
-Do not edit these files manually. The build does not use a bundler or create a `dist/` directory, and `build:js` minifies only the `js/main.js` entry point. The current runtime still loads the source `css/style.css` and `js/main.js`, while the app-shell generator excludes the minified files.
+The build is multi-page and covers `index.html`, the three legal pages and `offline.html`. Vite bundles the ES modules, consolidates and minifies CSS, and emits hashed files into `dist/build/`. `css/style.css` and `js/main.js` remain the canonical sources; production HTML references the generated assets rather than the source files. Files with contractual URLs — fonts, icons, logo, `manifest.webmanifest`, `service-worker.js`, `robots.txt`, `sitemap.xml` and `_redirects` — are copied through an explicit allowlist in `vite.config.js`. See [`docs/adr/009-vite-production-build.md`](docs/adr/009-vite-production-build.md).
 
 ### Testing and Validation
 
@@ -367,7 +361,7 @@ The primary local quality gate is:
 npm run check
 ```
 
-The script also runs the build, so it may update tracked generated files.
+The script builds `dist/` before the validations that depend on it. `dist/` is Git-ignored, so the gate does not modify tracked files.
 
 ### Deployment
 

@@ -1,0 +1,9 @@
+# FlowDesk publishes the built artifact only. The repository root is never served.
+# Deployment stays manual through the Netlify CLI; no Git integration is configured here.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

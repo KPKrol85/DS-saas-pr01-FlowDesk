@@ -48,6 +48,8 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 
 ### Build and Tooling
 
+- **Breaking:** Added a Vite production build. `npm run build` now creates a complete `dist/` with bundled, minified and hashed assets, and Netlify publishes `dist` through a new `netlify.toml` instead of the repository root. The development server, the production preview, the app-shell manifest generator, the performance budget and the Playwright suites all operate on that artifact. A checkout now requires `npm ci` on the target platform before the build can run.
+- Removed the tracked `css/style.min.css`, `js/main.min.js` and source-root `service-worker-assets.js`, which the `dist/` contract replaces. The `build:css`, `build:js` and `prebuild` scripts were retired with them.
 - Changed the total app-shell gzip budget from 170 KB to 180 KB, restoring a bounded development margin after the previous limit was exhausted, with the individual JavaScript, CSS and single-asset limits and the precache contents left unchanged.
 - Added a repository line-ending policy in `.gitattributes` that normalizes tracked text to LF and preserves CRLF for `*.bat` and `*.cmd` files.
 - Set the development server to port 8181 and added a Windows launcher, `start-dev.bat`, that verifies the local dependency installation before starting it.

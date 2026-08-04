@@ -1,15 +1,14 @@
 {
   "name": "flowdesk",
   "version": "1.0.0",
-  "license": "SEE LICENSE IN LICENSE.md",
   "description": "FlowDesk — demo SPA dla zarządzania usługami",
+  "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
-    "dev": "npx serve . --listen 8181",
-    "pwa:manifest": "node scripts/generate-service-worker-manifest.js",
-    "pwa:check": "node scripts/generate-service-worker-manifest.js --check",
-    "perf:budget": "node scripts/check-performance-budget.js",
-    "lighthouse": "npm run perf:budget",
+    "dev": "vite",
+    "build": "vite build && npm run pwa:manifest",
+    "preview": "vite preview",
+    "check": "npm run lint && npm run test && npm run build && npm run pwa:check && npm run perf:budget && npm run test:e2e && npm run test:a11y",
     "lint": "npm run lint:js && npm run lint:css && npm run format:check",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"css/**/*.css\"",
@@ -20,11 +19,10 @@
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test tests/e2e",
     "test:a11y": "playwright test tests/a11y",
-    "prebuild": "npm run pwa:manifest",
-    "build": "npm run build:css && npm run build:js",
-    "check": "npm run pwa:check && npm run lint && npm run test && npm run test:e2e && npm run test:a11y && npm run build && npm run perf:budget",
-    "build:css": "postcss css/style.css -o css/style.min.css",
-    "build:js": "terser js/main.js -o js/main.min.js --module",
+    "pwa:manifest": "node scripts/generate-service-worker-manifest.js",
+    "pwa:check": "node scripts/generate-service-worker-manifest.js --check",
+    "perf:budget": "node scripts/check-performance-budget.js",
+    "lighthouse": "npm run perf:budget",
     "images": "imagemin assets/images/* --out-dir=assets/images/optimized --plugin=webp"
   },
   "devDependencies": {
@@ -45,6 +43,7 @@
     "stylelint": "^17.14.0",
     "stylelint-config-standard": "^40.0.0",
     "terser": "^5.36.0",
+    "vite": "^7.3.6",
     "vitest": "^4.1.9"
   }
 }
