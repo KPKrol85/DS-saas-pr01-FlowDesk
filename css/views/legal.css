@@ -177,6 +177,20 @@
   background: var(--bg);
 }
 
+/* The cookies technology table ends with two prose columns that carry far more text than the
+   preceding ones. Without a floor they collapse into narrow vertical pillars. These selectors
+   match only a table that actually has a fifth and sixth column, so the four-column table on
+   the privacy page keeps its natural proportions. Overflow stays on .legal-table-wrap. */
+.legal-table th:nth-child(5),
+.legal-table td:nth-child(5) {
+  min-width: 13rem;
+}
+
+.legal-table th:nth-child(6),
+.legal-table td:nth-child(6) {
+  min-width: 15rem;
+}
+
 .legal-table tr:last-child td {
   border-bottom: 0;
 }
