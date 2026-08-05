@@ -49,6 +49,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Corrected the 1.0.0 changelog entry, which credited a CI setup the repository does not contain, to describe the local `npm run check` gate that it actually ships.
 - Recorded the completed local quality-gate verification in `AUDIT.md`: `npm run check` passes end to end on a clean Windows checkout, covering 103 unit tests, 14 integration tests, 36 end-to-end tests, 12 accessibility tests, both builds and the performance budget.
 - Added `docs/future-saas-readiness.md` and visual QA evidence for the main desktop and mobile views under `docs/qa/`.
+- Archived the completed remediation plan to `docs/archive/plans/`, following the convention already used for historical audits. `AUDIT.md` remains the active root-level quality record.
 
 ### Build and Tooling
 

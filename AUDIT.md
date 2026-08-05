@@ -227,6 +227,8 @@ The deduction is for current contract drift rather than for design. Three of the
 
 This section records work completed after the 2026-08-03 audit. Sections 1 to 9 are preserved as the audit-date record and are not rewritten.
 
+The remediation plan referenced throughout this document as `PLAN.md` was completed on 2026-08-05 and archived to [`docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md`](docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md). Its item identifiers below are unchanged and resolve against that archived file.
+
 **Current readiness:** Ready within verified scope
 
 **Rating after remediation:** 8/10. The conditions the audit named for that score are met: the quality gates pass on a clean checkout and the service worker navigation path is corrected. The remaining distance to a higher score is verification breadth rather than implementation quality — no screen-reader confirmation, no cross-browser matrix beyond Chromium, and no measured performance results.
