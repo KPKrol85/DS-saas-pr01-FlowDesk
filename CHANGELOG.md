@@ -39,6 +39,7 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 
 - Removed internal planning and context documents from the tracked repository, including the earlier to-do, implementation-plan and product-readiness files.
 - Removed the unused static `404.html`, leaving the Netlify catch-all rewrite as the server-side fallback and `renderNotFoundView` as the application-level not-found view, with the resulting soft-404 trade-off documented in the README.
+- Removed the obsolete Windows launcher `start-dev.bat`. The Vite development server is started directly through `npm run dev`.
 
 ### Documentation
 

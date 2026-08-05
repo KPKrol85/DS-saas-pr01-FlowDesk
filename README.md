@@ -106,8 +106,6 @@ npm ci
 npm run dev
 ```
 
-Na Windows można uruchomić `start-dev.bat`; launcher przechodzi do rootu repozytorium i wywołuje `npm run dev` po weryfikacji lokalnej instalacji zależności.
-
 Serwer deweloperski Vite startuje na `http://localhost:8181`. Projekt wymaga serwera HTTP; uruchamianie `index.html` przez `file://` nie obsługuje poprawnie modułów, ścieżek absolutnych i service workera. Service worker rejestruje się wyłącznie w buildzie produkcyjnym, więc development nie jest zanieczyszczany cache'em app-shell.
 
 ### Dostępne skrypty
@@ -316,8 +314,6 @@ The repository uses npm and includes `package-lock.json`. It does not declare a 
 npm ci
 npm run dev
 ```
-
-On Windows, run `start-dev.bat`; the launcher moves to the repository root and calls `npm run dev` after verifying the local dependency installation.
 
 The Vite development server starts on `http://localhost:8181`. The project requires an HTTP server; opening `index.html` through `file://` does not correctly support modules, absolute paths, and the service worker. The service worker registers only in a production build, so development is never polluted by an app-shell cache.
 
