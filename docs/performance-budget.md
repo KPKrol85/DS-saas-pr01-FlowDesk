@@ -12,7 +12,7 @@ Szybki lokalny gate:
 npm run perf:budget
 ```
 
-Alias zgodny z workflow performance/Lighthouse:
+Zachowany alias o historycznej nazwie. Uruchamia dokładnie ten sam checker gzip, **nie** uruchamia Lighthouse:
 
 ```bash
 npm run lighthouse

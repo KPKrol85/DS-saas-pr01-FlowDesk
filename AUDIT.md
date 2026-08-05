@@ -1,20 +1,24 @@
 # FlowDesk — Final Technical Front-End Audit
 
-**Audit date:** 2026-08-03
-**Project type:** Frontend-only static SPA — Service Management Dashboard demo (vanilla HTML/CSS/JS ES modules, no framework, no bundler, no backend)
-**Audit mode:** Final repository and implementation review
-**Readiness at audit date:** Needs important fixes
-**Current readiness:** Ready within verified scope — see section 10
+**Original audit date:** 2026-08-03
+**Current-status review:** 2026-08-05
+**Project type:** Frontend-only static SPA — Service Management Dashboard demo (vanilla HTML/CSS/JS ES modules, Vite build, no framework, no backend)
+**Audit mode:** Final repository and implementation review, with a dated current-status review
+**Current readiness:** Ready within verified scope
 
-## 1. Executive assessment
+## 1. Executive summary
 
-FlowDesk is a coherently engineered frontend-only demo. The architecture is consistent with its documentation: views never reach storage directly, mutations flow through explicit actions into a persistence and repository boundary, and `localStorage` content is treated as untrusted and normalized through domain validators and migrations on every load. Dynamic rendering is escaped consistently, no secrets are present, seed content uses reserved `.test` domains and non-routable phone numbers, and the README and CHANGELOG avoid unsupported production, security, or WCAG claims. Accessibility mechanisms are implemented rather than declared: focus trapping, focus return, `Escape` handling, labelled controls with `aria-invalid` and `aria-describedby`, and reduced-motion support.
+All implementation defects from the 2026-08-03 audit have been resolved or superseded, verified against the current repository: four P1 findings, six P2 findings and three optional improvements. No implementation defect remains open.
 
-The blocking issue is not architectural. Three of the project's own quality gates currently fail when executed: the generated service-worker app-shell manifest no longer matches the committed sources, the gzip performance budget is exceeded, and `prettier --check` fails. Because `npm run check` chains these, the documented local release gate cannot currently pass. Separately, the service worker's navigation handler writes every navigation response to a single fixed cache key, which makes its offline fallback return the wrong document.
+Three of those items were **superseded** rather than merely fixed, because the Vite production build replaced the contract they described: one P1 finding (`P1-01`) and two optional improvements (`O-01`, `O-03`). The source-root app-shell manifest and the unserved minified artefacts no longer exist, and production validation now measures the built `dist/` artefact.
 
-No P0 risk was detected. The remaining risk category is contract drift between generated output, quality gates, and committed sources rather than runtime correctness of the application itself. The project is suitable for continued development now, and suitable for release or portfolio presentation once the four P1 findings are resolved.
+One assistive-technology verification gap remains. The accessibility mechanisms delivered under `P2-01` and `P2-02` are implementation-resolved, but neither has been confirmed with a screen reader; that gap is tracked as `L-1`. The remaining entries in section 5 are accepted limitations of a frontend-only demo, not work items.
 
-## 2. Audit scope and verification
+The project is suitable for release, portfolio presentation, handoff and continued development within its documented scope.
+
+## 2. Original audit scope and verification (2026-08-03)
+
+This section records the audit as performed on the original date. It is preserved unchanged and does not describe the current repository.
 
 ### Areas inspected
 
@@ -31,235 +35,133 @@ No P0 risk was detected. The remaining risk category is contract drift between g
 - Repository documentation: `README.md`, `FLOWDESK-CONTEXT.md`, `CHANGELOG.md`, `docs/` and `docs/adr/`
 - Security-visible review: committed credentials scan, `innerHTML` sites, escaping helpers, CSP compatibility of rendered markup
 
-### Verification performed
+### Verification performed at the audit date
 
-- `node scripts/generate-service-worker-manifest.js --check` (`npm run pwa:check`) — executed and failed
-- `node scripts/check-performance-budget.js` (`npm run perf:budget`) — executed and failed
-- `npx eslint .` (`npm run lint:js`) — executed and passed
-- `npx stylelint "css/**/*.css"` (`npm run lint:css`) — executed and passed
-- `npx prettier . --check` (`npm run format:check`) — executed and failed
+- `npm run pwa:check` — executed and failed
+- `npm run perf:budget` — executed and failed
+- `npx eslint .` and `npx stylelint "css/**/*.css"` — executed and passed
+- `npx prettier . --check` — executed and failed
 - `node --check` across every non-minified file in `js/` and `scripts/`, plus `service-worker.js` — executed and passed
-- Independent read-only recomputation of the app-shell manifest to isolate list drift from content drift — executed
-- Asset-existence verification for every icon, font, logo and favicon path referenced by `index.html`, `manifest.webmanifest` and the app shell — executed and passed
-- Repository secrets scan across `js/`, `scripts/`, root HTML and JSON — executed, nothing detected
+- Independent read-only recomputation of the app-shell manifest, asset-existence verification for every referenced icon, font, logo and favicon path, and a repository secrets scan — executed; no secrets detected
 - Static inspection of all areas listed above
 
-### Verification limitations
+### Verification limitations at the audit date
 
-- `npm run test:unit` and `npm run test:integration` — not executed. `node_modules` in the audited environment was installed for a different platform and the required native `rolldown` binding is unavailable. Installing or repairing dependencies was outside the permitted scope, so no claim is made about whether the 21 Vitest files pass.
-- `npm run test:e2e` and `npm run test:a11y` — not executed. No Playwright browser binaries are present and installing them was outside the permitted scope. The 5 Playwright specs were inspected statically only.
-- `npm run build` — intentionally not run. It writes tracked files (`css/style.min.css`, `js/main.min.js`) and its `prebuild` step rewrites tracked `service-worker-assets.js`. Its configuration was inspected statically instead.
-- No browser or runtime verification was performed. Findings describing rendered behavior are classified accordingly and are not presented as observed runtime results.
-- Contrast compliance was not fully verified because reliable computed-style analysis was not available.
-- No live deployment was inspected. No live URL was supplied for this audit, and no deployment status is claimed here.
+- Vitest and Playwright suites — not executed. The audited `node_modules` was installed for a different platform, so the required native bindings and browser binaries were unavailable.
+- `npm run build` — intentionally not run, because it wrote tracked files at that time.
+- No browser, runtime, contrast or live-deployment verification was performed.
 
-## 3. Verified strengths
+## 3. Current verification baseline
 
-- Unidirectional data flow is enforced in practice, not only documented. No view or component reads or writes `localStorage`; every mutation passes through `js/core/actions.js` and `js/core/store.js` into `js/core/persistence.js` and `js/repositories/localStorageRepositoryAdapter.js`.
-- Persisted state is treated as untrusted. `localStorageRepositoryAdapter.js:9-17` normalizes through `migrateState` on both load and save, so malformed or outdated stored data is repaired before it reaches the store.
-- Escaping discipline is consistent across dynamic rendering. `js/utils/sanitize.js` is applied at every interpolation of user or stored data, including the global search results in `js/main.js:62-79`; `js/components/toast.js:27-53` uses `textContent` rather than markup.
-- The rendered application is compatible with its own Content Security Policy. `index.html` declares `script-src 'self'` and `style-src 'self'` without `'unsafe-inline'`, and no runtime module emits `style` attributes, inline event handlers or inline `<style>` blocks.
-- Dialog and drawer accessibility is implemented end to end: focus trap, `Escape` handling, `aria-modal`, invoker restoration and `aria-expanded` synchronization (`js/components/modal.js:10-91`, `js/components/drawer.js:22-82`). Both are removed from the tab order when closed via `visibility: hidden` and `display: none` rather than opacity alone.
-- Form controls carry programmatic semantics by construction: `label`/`for` pairing, `aria-invalid`, and `aria-describedby` wired to persistent helper and error elements (`js/components/formControls.js:3-30`).
-- Public and demo content is honest. The login screen states the demo character and that credentials are not sent to a server (`js/views/loginView.js:31,54`), and `js/data/seed.js` uses reserved `.test` domains and non-routable placeholder phone numbers, so no fabricated real-world contact data is published.
-- The app-shell manifest is generated, not hand-maintained, and ships with a read-only drift check (`scripts/generate-service-worker-manifest.js`). The check correctly detected the drift reported in P1-01.
-- Service worker cache cleanup is scoped: `service-worker.js:67-74` deletes only keys carrying the `flowdesk-app-shell` prefix, so unrelated caches on the same origin are not removed.
-- Documentation is accurate about limitations. `README.md:168,380` explicitly declines to claim WCAG compliance, `docs/versioning.md:29` forbids calling the project production-ready, and both `README.md` and `CHANGELOG.md` restate the absence of a backend, real authentication and cloud sync.
+The full quality gate has since been executed on a platform-correct Windows installation.
+
+- `npm run check` completed end to end with exit code 0 on 2026-08-05, covering the PWA manifest check, ESLint, Stylelint, Prettier, Vitest unit (17 files, 103 tests), Vitest integration (5 files, 14 tests), Playwright end-to-end (36 tests), Playwright accessibility (12 tests), the build and the performance budget.
+- That run predates the Vite migration. `npm run check` was executed again after the migration and after the security-header work, passing in both cases; the detailed per-suite counts above are from the 2026-08-05 run and are not restated for the later runs, because no new counts were recorded.
+- The production artefact was inspected directly: `dist/build/` contains one CSS bundle, one JavaScript bundle and four hashed fonts; all five built HTML documents reference the same generated stylesheet.
+- The security-header policy was confirmed on a Netlify **draft** deploy through HTTP responses for `/`, `/offline.html` and `/regulamin.html`. No production deployment was made or verified.
+
+## 4. Open findings
+
+**No open implementation defects.** Every finding from this audit is resolved or superseded; see section 6.
+
+One closure criterion remains unmet: the assistive-technology confirmation for `P2-01` and `P2-02`. It is a manual verification gap rather than an implementation defect, and is tracked as `L-1` in section 5. The audit is therefore not fully closed, even though no code work remains.
+
+## 5. Accepted limitations and deferred production work
+
+These are deliberate boundaries of a frontend-only demo or verification that has not been performed. They are not defects and require no implementation decision unless the project's scope changes.
+
+| #   | Limitation                                                                                                                                                                | Nature                                                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| L-1 | The `aria-current` navigation state and the shared form-error status region were verified structurally and by the axe suite, but never confirmed with a screen reader.    | Verification gap — the only outstanding closure criterion in this audit |
+| L-2 | Playwright runs Chromium only. No cross-browser matrix exists.                                                                                                            | Verification breadth                                                    |
+| L-3 | The accessibility suite is axe-based and is not a formal WCAG conformance claim.                                                                                          | Scope boundary                                                          |
+| L-4 | Contrast compliance was never verified through computed-style analysis.                                                                                                   | Verification gap                                                        |
+| L-5 | No performance measurement beyond the repository's own gzip budget. No Lighthouse run.                                                                                    | Verification breadth                                                    |
+| L-6 | No production deployment has been inspected. Draft-deploy verification only.                                                                                              | Deployment boundary                                                     |
+| L-7 | Authentication is demo-only, persistence is `localStorage`, and identity, RBAC and sync-metadata modules are frontend-readiness contracts that are not enforced anywhere. | Documented product boundary                                             |
+
+Closing `L-1` requires one manual pass with a screen reader over the application navigation and a failed form submission. The remaining entries close only by widening the project's scope, which is a product decision rather than audit work.
+
+**`L-1` closure attempt, 2026-08-05.** Verification was attempted and could not be performed. The implementation environment is a headless Ubuntu container with no screen reader installed, no audio device, no display server and no AT-SPI accessibility bus, so no spoken output could be produced or observed. Browser accessibility-tree inspection, ARIA markup review, axe and Playwright were all available but are explicitly not accepted as substitutes for this criterion. `L-1` therefore remains open, and its closure condition is unchanged: run the two scenarios below with a real screen reader and record what was actually announced.
+
+- Navigate between application routes through the sidebar and confirm whether the active route is announced through `aria-current`.
+- Submit the login form with invalid data from a fresh demo session and confirm whether the validation error is announced at the moment it appears.
+
+Record the screen reader, operating system and browser alongside the observed result. Do not record wording that was not directly heard.
+
+## 6. Resolved findings summary
+
+Every entry below was verified against the current repository on 2026-08-05. Implementation narratives are deliberately not repeated here — `CHANGELOG.md` records what changed, and [`docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md`](docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md) records how each item was executed and verified.
+
+### P0 — Critical risks
+
+None were detected at the audit date, and none has arisen since.
+
+### P1 — Important issues
+
+| ID    | Finding                                                                   | Status         | Current evidence                                                                                                                                                                                                                                                                              |
+| ----- | ------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1-01 | Generated app-shell manifest no longer matched committed sources          | **Superseded** | The source-root `service-worker-assets.js` no longer exists. `scripts/generate-service-worker-manifest.js` inventories `dist/build/` and writes `dist/service-worker-assets.js` after the Vite build, so the drift class described by the finding cannot recur in the same form. See ADR 009. |
+| P1-02 | Service worker stored every navigation response under one fixed cache key | **Resolved**   | `service-worker.js` derives a per-document key through `navigationCacheKey()`, and `asNavigationResponse()` rebuilds a redirected cached response before it is returned for a navigation. Covered by `tests/unit/service-worker-navigation.test.js`.                                          |
+| P1-03 | App-shell gzip budget exceeded and `npm run perf:budget` failed           | **Resolved**   | The favicon was optimized and excluded from the shell, and the total limit was recalibrated from 170 KB to 180 KB as a recorded decision in `docs/performance-budget.md`. `scripts/check-performance-budget.js` now measures `dist/` only and fails loudly when it is missing.                |
+| P1-04 | `npm run lint` failed because `prettier --check` rejected five files      | **Resolved**   | Two stray blank lines were removed and line endings were normalized through `.gitattributes`. Confirmed on a fresh Windows checkout and on Linux.                                                                                                                                             |
+
+### P2 — Minor refinements
+
+| ID    | Finding                                                               | Status       | Current evidence                                                                                                                                                                                                                                                                                         |
+| ----- | --------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P2-01 | Active route not exposed programmatically in application navigation   | **Resolved** | `js/components/sidebar.js` emits `aria-current="page"` on the active link only, shared by the sidebar and the drawer. Screen-reader confirmation is outstanding — see L-1.                                                                                                                               |
+| P2-02 | Form validation errors not announced when they occur                  | **Resolved** | `js/components/formControls.js` renders the shared error element with `role="status"`, covering all three field helpers. Screen-reader confirmation is outstanding — see L-1.                                                                                                                            |
+| P2-03 | Sidebar logo used a relative path and sat outside the precached shell | **Resolved** | `js/components/sidebar.js` uses `/assets/logo/logo.svg`, and the generator lists that stable URL explicitly in the app shell because runtime JavaScript renders it.                                                                                                                                      |
+| P2-04 | `404.html` could never be served by the deployment configuration      | **Resolved** | The file was removed. `_redirects` remains the server-side fallback, `renderNotFoundView` the application-level one, and both README language sections document the resulting soft-404 trade-off.                                                                                                        |
+| P2-05 | Failed local persistence reported to views as a successful write      | **Resolved** | The adapter exposes `persistState()` returning `{ state, persisted }`, and `commitActionResult()` in `js/core/store.js` returns `{ ok: false, error: 'storage-write-failed' }` when the write fails, routing into the existing failure toasts. The startup warning for unavailable storage is unchanged. |
+| P2-06 | `CHANGELOG.md` credited a CI setup the repository does not contain    | **Resolved** | The 1.0.0 entry now names the local `npm run check` gate. No CI configuration exists or is claimed anywhere in the repository.                                                                                                                                                                           |
+
+### Optional improvements
+
+| ID   | Improvement                                               | Status         | Current evidence                                                                                                                                                                                                                                                                            |
+| ---- | --------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| O-01 | Clarify the role of the unserved minified build artefacts | **Superseded** | `css/style.min.css` and `js/main.min.js` were deleted with the Vite migration. The ambiguity was removed at its source rather than documented: `dist/` is now the only production artefact. ADR 005 is marked superseded by ADR 009.                                                        |
+| O-02 | Move security headers into hosting configuration          | **Resolved**   | A source-root `_headers` file delivers the CSP with `frame-ancestors 'none'` plus `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options` and `Permissions-Policy` across every document. The CSP meta element was removed from `index.html`. Confirmed on a draft deploy — see L-6. |
+| O-03 | Measure the CSS entry-point request pattern               | **Superseded** | The measurement became unnecessary because the behaviour was removed. Vite consolidates the source `@import` chain at build time; production serves one generated stylesheet with no `@import` remaining. The layered source architecture is unchanged.                                     |
+
+## 7. Verified strengths
+
+Re-checked against the current repository on 2026-08-05.
+
+- Unidirectional data flow is enforced in practice, not only documented. No view or component reads or writes `localStorage`; every mutation passes through `js/core/actions.js` and `js/core/store.js` into the persistence and repository boundary.
+- Persisted state is treated as untrusted. `localStorageRepositoryAdapter.js` normalizes through `migrateState` on both load and save, so malformed or outdated stored data is repaired before it reaches the store.
+- Escaping discipline is consistent across dynamic rendering. `js/utils/sanitize.js` is applied at every interpolation of user or stored data; `js/components/toast.js` uses `textContent` rather than markup.
+- The rendered application is compatible with a strict Content Security Policy without `'unsafe-inline'`. No runtime module emits `style` attributes, inline event handlers or inline `<style>` blocks. Since O-02 the policy is delivered as an HTTP header from `_headers` and covers all five documents rather than the SPA entry alone.
+- Dialog and drawer accessibility is implemented end to end: focus trap, `Escape` handling, `aria-modal`, invoker restoration and `aria-expanded` synchronization. Both are removed from the tab order when closed.
+- Form controls carry programmatic semantics by construction: `label`/`for` pairing, `aria-invalid`, `aria-describedby` and, since P2-02, a status region for the error text.
+- Public and demo content is honest. The login screen states the demo character and that credentials are not sent to a server, and `js/data/seed.js` uses reserved `.test` domains and non-routable placeholder phone numbers.
+- The app-shell manifest is generated, not hand-maintained, and ships with a read-only drift check. Since the Vite migration it inventories the built artefact, so production validation cannot silently pass against source files.
+- Service worker cache cleanup is scoped to the `flowdesk-app-shell` prefix, so unrelated caches on the same origin are not removed.
+- Documentation is accurate about limitations. The README declines to claim WCAG compliance, `docs/versioning.md` forbids calling the project production-ready, and both the README and `CHANGELOG.md` restate the absence of a backend, real authentication and cloud sync.
 - No secrets, credentials, tokens, `.env` files, `TODO`/`FIXME` markers or `debugger` statements are present. The only `console` calls are `console.warn` inside error-handling branches.
 
-## 4. P0 — Critical risks
+## 8. Readiness conclusion at the audit date (historical)
 
-None detected.
+**Status on 2026-08-03:** Needs important fixes
 
-## 5. P1 — Important issues worth fixing next
+Preserved unchanged as the audit-date record. No P0 blocker existed, and the architecture, data boundaries, escaping discipline and accessibility mechanisms were sound within the project's frontend-only scope. What was not sound was the contract between the repository and its own tooling: three executed gates failed, and the service worker's navigation handler contained a provable defect in its offline path. The repository was not to be presented as release-ready until P1-01 through P1-04 were resolved.
 
-### [P1-01] Generated service-worker app-shell manifest no longer matches committed sources
+**Rating on 2026-08-03: 7/10.** The deduction was for contract drift rather than design — three of the project's own quality gates failed when run, the generated manifest no longer represented the sources it cached, and the navigation caching defect undermined the documented offline story. The audit stated that 8 or above would become defensible once the gates passed on a clean checkout and the service worker navigation path was corrected.
 
-- **Classification:** Contract mismatch
-- **Affected area:** PWA, service worker caching, release gate
-- **Evidence:** `service-worker-assets.js` — `version: 'e774cd33d7db'`; `scripts/generate-service-worker-manifest.js` — `--check` branch
-- **Current behavior:** `npm run pwa:check` fails. Read-only recomputation shows the asset list is unchanged at 90 entries, but the content hash resolves to `2c9fa3eb0d3f` rather than the committed `e774cd33d7db`. Three app-shell sources changed after the manifest was generated — `css/components/badge.css`, `css/components/data-display.css` and `css/views/dashboard.css` — introduced by commits `2b344c4` and `164820f`.
-- **Impact:** `CACHE_NAME` in `service-worker.js:13` derives from `manifest.version`. Because the version is unchanged, an already-installed service worker does not create a new cache or evict the old one, and `service-worker.js:95-97` serves CSS cache-first. Returning users continue to receive the superseded stylesheets. The failure is also the first step of `npm run check`, so the documented gate stops here.
-- **Recommended direction:** Regenerate the manifest with `npm run pwa:manifest` and commit the result together with the app-shell changes that caused the drift, so the cache version always advances with runtime sources.
-- **Verification criteria:** `npm run pwa:check` exits zero against a clean working tree, and the committed `version` value matches the recomputed hash.
+## 9. Current assessment
 
-### [P1-02] Service worker stores every navigation response under a single fixed cache key
+**Status:** Ready within verified scope
+**Rating: 8/10**
 
-- **Classification:** Defect
-- **Affected area:** PWA, offline behavior, public legal routes
-- **Evidence:** `service-worker.js:39-50`
-- **Current behavior:** `navigationNetworkFirst` writes each successful navigation response to the literal key `'/index.html'` regardless of which document was requested, and its offline branch returns that same key for every navigation. The site serves four indexed documents (`/`, `/polityka-prywatnosci.html`, `/regulamin.html`, `/cookies.html`, per `sitemap.xml`), and none of the legal pages is part of the precached app shell.
-- **Impact:** An online visit to any legal page overwrites the cached application shell entry with that page's HTML. A subsequent offline visit to `/` then returns the legal document instead of the application. Conversely, an offline visit to a legal route returns the application shell rather than that page or `offline.html`, so `OFFLINE_URL` is effectively unreachable for navigations. This contradicts the documented offline contract: `docs/pwa-strategy.md:45` specifies network-first navigation falling back to the cached `index.html` and then to `offline.html`, and `docs/pwa-strategy.md:51` describes `offline.html` as the always-available last fallback.
-- **Recommended direction:** Key the navigation cache write to the requested URL rather than a constant, and scope the offline fallback so the application shell is returned only for application navigations, with `offline.html` returned otherwise.
-- **Verification criteria:** After visiting a legal page online, an offline navigation to `/` renders the application, and an offline navigation to an uncached document renders `offline.html`.
+The conditions the original audit named for that score are met and independently verified: the quality gates pass end to end against the current repository state on a platform-correct Windows installation, the service worker navigation path is corrected, and the P2 accessibility and persistence refinements landed. The Vite migration additionally removed two structural weaknesses the audit had described rather than merely patching them.
 
-### [P1-03] App-shell gzip budget is exceeded and `npm run perf:budget` fails
+The remaining distance to a higher score is verification breadth, not implementation quality. Nothing in section 5 is a defect; `L-1` is the only item with a concrete, cheap closure path, and the rest close only by widening scope. A reviewer running `npm run check` today sees it pass. The audit stays active until `L-1` is closed.
 
-- **Classification:** Contract mismatch
-- **Affected area:** Performance budget, PWA install payload, release gate
-- **Evidence:** `scripts/check-performance-budget.js:9-15` — `appShellGzipBytes: 170 * 1024`
-- **Current behavior:** Executed output reports `FAIL App-shell gzip size: 196.8 KB / 170.0 KB`, exit code 1. The JavaScript (57.2 KB), CSS (15.3 KB) and single-asset checks pass. The two largest contributors are the four Inter `woff2` weights at roughly 94.4 KB gzip combined, and `assets/icons/favicon/favicon.svg` at 27.1 KB gzip from 37.9 KB raw. All four font weights are genuinely referenced by the design tokens, so they are not redundant; the favicon is a generator export that still carries embedded RDF metadata.
-- **Impact:** The service worker precaches the full app shell on install, so the install payload exceeds the project's own stated budget by roughly 16 percent. The check is also the final step of `npm run check`, so the documented gate fails at both ends. The archived audit still records this budget as passing — `docs/archive/audits/2026-07-24-daily-front-end-audit.md:18,62` — which is no longer accurate for the current repository state.
-- **Recommended direction:** Reduce the app-shell payload before adjusting the threshold — the favicon is the largest single reducible item and is disproportionate for its role. Raise the budget only as a deliberate, documented decision if the measured size is accepted.
-- **Verification criteria:** `node scripts/check-performance-budget.js` exits zero, and the recorded budget matches what the repository actually ships.
+## 10. References
 
-### [P1-04] `npm run lint` fails because `prettier --check` rejects five tracked files
-
-- **Classification:** Contract mismatch
-- **Affected area:** Code quality gate, cross-platform line-ending handling
-- **Evidence:** `js/components/topbar.js:27`; `regulamin.html:48`; `package.json`, `icons.md`, `LICENSE.md`
-- **Current behavior:** `npx prettier . --check` reports five files. Two are genuine formatting defects: a stray consecutive blank line at `js/components/topbar.js:27` and at `regulamin.html:48`. The other three differ from Prettier's expected output only by carriage returns; `.prettierrc.json` sets no `endOfLine`, so the default `lf` applies while these files carry CRLF in the working tree.
-- **Impact:** `npm run lint` cannot pass, which stops `npm run check` at its second step. The line-ending component is environment-sensitive rather than intrinsic, which makes the failure hard to interpret and easy to dismiss — a reviewer running the documented gate sees a red result with two unrelated causes mixed together.
-- **Recommended direction:** Remove the two stray blank lines. For the line-ending component, confirm that the newly added `.gitattributes` normalization actually resolves the three remaining files in a fresh checkout, and only then treat the gate as green.
-- **Verification criteria:** `npx prettier . --check` reports no files, and `npm run lint` exits zero on both a Windows and a Linux checkout.
-
-## 6. P2 — Minor refinements
-
-### [P2-01] Application navigation does not expose the active route programmatically
-
-- **Classification:** Defect
-- **Affected area:** Accessibility, navigation
-- **Evidence:** `js/components/sidebar.js:18-31` — `renderNavigationLinks()`
-- **Current behavior:** The active route is conveyed only by the `sidebar__link--active` class, which drives background, weight and an inset border. No `aria-current` attribute is set. The same markup is reused for the mobile drawer via `renderNavList()`. The project already applies the correct pattern on its static pages — `polityka-prywatnosci.html:308`, `regulamin.html:374` and `cookies.html:257` all use `aria-current="page"`, and `css/views/legal.css:212` styles it.
-- **Impact:** Screen reader users navigating the application shell receive no indication of which of the five views is currently open, in the one navigation region they use on every route. The inconsistency with the legal pages also makes the intended convention ambiguous for future maintenance.
-- **Recommended direction:** Emit `aria-current="page"` on the active navigation link alongside the existing active class, matching the pattern already used on the static pages.
-- **Verification criteria:** The active link in both the sidebar and the drawer carries `aria-current="page"`, and it moves correctly on route change.
-
-### [P2-02] Form validation errors are not announced and focus is not moved to the first invalid control
-
-- **Classification:** Source-visible risk
-- **Affected area:** Accessibility, forms
-- **Evidence:** `js/components/formControls.js:16,20-30` — `errorMarkup()` and `setFieldError()`; `js/views/loginView.js:75-94`
-- **Current behavior:** Error text is written into a persistent `<span class="input__error">` that is correctly referenced by `aria-describedby` and paired with `aria-invalid`. The span carries no `role="alert"` or `aria-live`, and on failed submit the handler sets the messages without moving focus, so focus remains on the submit control.
-- **Impact:** A screen reader user submitting the login form — the entry point to the entire application — receives no notification that submission failed. The message is discoverable only by navigating back to the field, since the association is already correct. The same pattern applies to every other form built from these helpers.
-- **Recommended direction:** Make the error element a status region, or move focus to the first invalid control on failed submit, so the failure is communicated at the moment it occurs. One mechanism is sufficient.
-- **Verification criteria:** A failed submit either announces the error through assistive technology or places focus on the first invalid control.
-- **Resolution status:** Addressed after this audit date under `PLAN.md` item `PH3-02`. `errorMarkup()` now renders the shared error element as a `role="status"` region, which covers `inputField`, `selectField` and `textareaField` without per-view code. Announcement behavior has not been confirmed with a screen reader, so this finding should be re-verified during the final verification phase rather than treated as closed.
-
-### [P2-03] Sidebar logo uses a relative path and sits outside the precached app shell
-
-- **Classification:** Maintenance risk
-- **Affected area:** Asset paths, offline app shell
-- **Evidence:** `js/components/sidebar.js:13`; `scripts/generate-service-worker-manifest.js` — `runtimeDirectories`
-- **Current behavior:** The sidebar brand renders `src="assets/logo/logo.svg"` without a leading slash. Every other reference to the same asset is root-relative — `js/views/loginView.js:18,47` and all three legal pages use `/assets/logo/logo.svg`. Separately, the manifest generator walks only `css`, `js`, `assets/fonts` and `assets/icons`, so `assets/logo/` is never precached; the file is picked up only by the runtime `STATIC_ASSET_PATTERN` in `service-worker.js:16` after a successful network fetch.
-- **Impact:** Because `_redirects` rewrites every unmatched path to `index.html` with status 200, a request to a path ending in a slash resolves the relative reference against that path and returns HTML instead of the SVG, producing a broken image in the shell. The precache gap means the shell logo is unavailable on a cold offline start. Neither consequence is reachable on the canonical `/` entry point, which is why this is scoped as a source-visible risk rather than a confirmed failure.
-- **Recommended direction:** Use the root-relative path already used everywhere else, and decide explicitly whether `assets/logo/` belongs in the precached app shell.
-- **Verification criteria:** No runtime module references project assets with a relative path, and the shell logo's precache status is a deliberate, documented choice.
-- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH4-02`. The sidebar now uses `/assets/logo/logo.svg`, and a sweep of runtime JavaScript confirmed no other relative project-asset reference remains. `assets/logo` was added to the generator's `runtimeDirectories`, so the shell logo is precached deliberately; the extension filter keeps the unused `logo.png` out. The contract is recorded in `docs/pwa-strategy.md` and the app shell measures 172.3 KB against the 180 KB limit.
-
-### [P2-04] `404.html` can never be served by the current deployment configuration
-
-- **Classification:** Contract mismatch
-- **Affected area:** Deployment, routing
-- **Evidence:** `_redirects` — `/*    /index.html   200`; `404.html`
-- **Current behavior:** The catch-all rewrite returns the application shell with status 200 for every path that does not match a static file, so the committed `404.html` is unreachable in that hosting model. Unknown paths are handled instead by the SPA's own `renderNotFoundView`, which is reached through the hash router.
-- **Impact:** The repository carries two mutually exclusive not-found mechanisms with no indication of which is authoritative, and a maintainer may edit the file that cannot run. All unknown URLs also resolve as soft 404s for crawlers, which is a normal SPA trade-off but is not stated anywhere.
-- **Recommended direction:** Keep one not-found path. Either document `404.html` as an intentional fallback for hosting without the rewrite, or remove it and rely on the in-application view.
-- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH5-01`. `404.html` was removed, `_redirects` remains the server-side fallback and `renderNotFoundView` remains the application-level mechanism. Both README language sections now state that unknown server paths receive the SPA shell with status `200`, which is a soft-404 trade-off rather than a true HTTP `404`. The file was never part of the generated app-shell manifest, so no regeneration was required.
-- **Verification criteria:** The repository contains exactly one documented not-found mechanism consistent with `_redirects`.
-
-### [P2-05] Failed local persistence is reported to views as a successful write
-
-- **Classification:** Source-visible risk
-- **Affected area:** State persistence, user feedback
-- **Evidence:** `js/repositories/localStorageRepositoryAdapter.js:13-17`; `js/core/store.js:41-46`
-- **Current behavior:** `storage.set()` in `js/utils/storage.js:36-46` returns a boolean and swallows write exceptions. `saveState` discards that return value, and `commitActionResult` returns `{ ok: true }` whenever the action itself validated. A quota or permission failure therefore updates in-memory state and shows a success toast while nothing is persisted. `js/main.js:285-287` covers the separate case where storage is unavailable at startup, by showing an explicit warning.
-- **Impact:** If a write fails mid-session, the interface confirms an action that will not survive a reload. Likelihood is low for demo-scale data, and the startup warning already covers fully blocked storage, so the exposure is bounded.
-- **Recommended direction:** Propagate the adapter's write result through the persistence layer so the store can distinguish a validated action from a durably persisted one, and surface the difference in the existing toast feedback.
-- **Verification criteria:** With `localStorage` writes forced to fail, a mutating action reports failure rather than success.
-- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH4-01`. The adapter now exposes `persistState()`, and `commitActionResult()` returns `{ ok: false, error: 'storage-write-failed' }` when the write does not succeed, which routes into the existing per-view failure toasts. The startup warning for fully unavailable storage is unchanged. Focused assertions against the real store and persistence modules pass; Vitest itself was not executed because its native binding was unavailable in the implementation environment.
-
-### [P2-06] `CHANGELOG.md` credits a CI setup the repository does not contain
-
-- **Classification:** Documentation mismatch
-- **Affected area:** Project documentation
-- **Evidence:** `CHANGELOG.md:11`; `README.md:162,374`
-- **Current behavior:** The 1.0.0 entry lists "repeatable quality toolchain with linting, formatting, test scripts and CI". No `.github/`, workflow file or other CI configuration exists, and the README states directly that FlowDesk contains no deployment script or GitHub Actions workflow.
-- **Impact:** Two documents in the same repository make opposing claims about automation. For a portfolio-facing project this is the kind of statement a reviewer checks, and the repository does not support it.
-- **Recommended direction:** Align the changelog entry with the actual tooling — the local `npm run check` gate — or leave the entry as historical record and note explicitly that CI was never added.
-- **Verification criteria:** No repository document claims a CI pipeline that is not present.
-- **Resolution status:** Resolved after this audit date under `PLAN.md` item `PH5-02`. The 1.0.0 entry no longer credits CI and instead names the mechanism that exists, the local `npm run check` gate, described from the current `package.json` chain. `README.md` was inspected and needed no change, since both language sections already state that the repository contains no deployment script or GitHub Actions workflow. Remaining CI mentions in `docs/` are conditional or refer to Lighthouse CI as a separate tool that is not run here. No CI configuration was added.
-
-## 7. Extra quality improvements
-
-### Clarify the role of the unserved minified build artifacts
-
-- **Relevant area:** Build pipeline, generated files.
-- **Current evidence:** `index.html` loads `/css/style.css` and `/js/main.js` directly. `css/style.min.css` is a fully inlined 39 KB bundle produced by `postcss-import` and cssnano, while `js/main.min.js` is Terser output of the entry module alone — Terser does not bundle, so it retains `import` statements pointing at the unminified siblings. `scripts/generate-service-worker-manifest.js` explicitly excludes both from the app shell, and both were regenerated more recently than the manifest they are excluded from.
-- **Potential value:** The two artifacts are tracked and rebuilt by `npm run check` but never served, so they add review noise and can be mistaken for the production contract. Documenting them as reference output, or deriving the served assets from them, would remove the ambiguity.
-- **Scope boundary:** Optional. The exclusion is explicit in the generator's `ignoredFiles` set and breaks nothing at runtime; this is a clarity improvement, not a defect.
-
-### Move security headers from the document meta tag to hosting configuration
-
-- **Relevant area:** Security-visible configuration.
-- **Current evidence:** The Content Security Policy exists only as a `<meta http-equiv>` tag in `index.html`. The static pages — `polityka-prywatnosci.html`, `regulamin.html` and `cookies.html` — carry no policy at all. The repository contains `_redirects` but no `_headers` file.
-- **Potential value:** A `_headers` file would apply one policy across every document and would allow directives that a meta tag cannot express, notably `frame-ancestors`. The current runtime is already compatible with a strict policy, since no module emits inline styles or handlers, so the change carries little risk.
-- **Scope boundary:** Optional and outside the current demo scope. `README.md` already lists hosting security headers as production work rather than a present capability.
-- **Implementation status:** Implemented after this audit date under `PLAN.md` item `O-02`. A source-root `_headers` file now delivers the Content-Security-Policy with `frame-ancestors 'none'` plus `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options` and `Permissions-Policy` across every document, and the CSP meta element was removed from `index.html`. Confirmed on a Netlify draft deploy through HTTP responses for `/`, `/offline.html` and `/regulamin.html`; no production deployment was made.
-
-### Measure the CSS entry-point request pattern before assuming it is acceptable
-
-- **Relevant area:** Runtime loading strategy.
-- **Current evidence:** `css/style.css` is a 1 KB file consisting of 26 `@import` statements. In the browser this is a nested request chain, whereas `css/style.min.css` — the flattened equivalent — is not served. All 26 files are precached by the service worker, which removes the cost for repeat visits but not for the first paint.
-- **Potential value:** A measurement would establish whether the layered source architecture has a first-visit cost worth addressing, and would replace assumption with evidence.
-- **Scope boundary:** Optional. No measurement was taken during this audit, and no performance regression is claimed. The layered CSS structure is a deliberate, documented architecture decision.
-- **Resolution status:** Resolved after this audit date under `PLAN.md` item `O-03`, by removal rather than by measurement. The Vite migration recorded in `docs/adr/009-vite-production-build.md` consolidates the source `@import` chain at build time, so production serves one generated stylesheet referenced by all five built documents, with no `@import` remaining in it. The layered source architecture is unchanged. Confirmed through production-artifact inspection, not a browser network recording.
-
-## 8. Readiness conclusion at the audit date
-
-**Status:** Needs important fixes
-
-This section records the state on 2026-08-03 and is preserved unchanged. The current readiness assessment is in section 10.
-
-No P0 blocker exists, and the application architecture, data boundaries, escaping discipline and accessibility mechanisms are sound within the project's frontend-only scope. What is not currently sound is the contract between the repository and its own tooling: three executed gates fail, and the service worker's navigation handler contains a provable defect in its offline path.
-
-For this specific project that means development can continue safely, but the repository should not be presented as release-ready or portfolio-final until P1-01 through P1-04 are resolved — a reviewer running the documented `npm run check` command will currently see it fail. The four P1 items are contained and independently fixable; none requires architectural change. The unavailability of the Vitest and Playwright suites in this environment means the readiness assessment rests on static inspection plus the checks that did execute, and should be reconfirmed once those suites are run on a working installation.
-
-## 9. Senior rating
-
-**Rating:** 7/10
-
-Judged as a frontend-only portfolio demo built deliberately without a framework, bundler or backend. The upper half of the score is earned: the layering is real and enforced rather than aspirational, stored data is validated as untrusted input, rendering is escaped consistently and is compatible with a strict CSP that most projects of this type would have to relax, accessibility is implemented in the components rather than asserted in documentation, demo content avoids fabricated real-world data, and the documentation is unusually disciplined about what the project is not.
-
-The deduction is for current contract drift rather than for design. Three of the project's own quality gates fail when run, the generated service-worker manifest no longer represents the sources it caches, and the navigation caching defect undermines the offline story the project documents. These are the checks a senior reviewer runs first, and they are the difference between a project that claims rigor and one that demonstrates it. A score of 8 or above becomes defensible once the gates pass on a clean checkout and the service worker navigation path is corrected; the accessibility and persistence refinements in P2 would consolidate it further.
-
-## 10. Post-audit verification
-
-This section records work completed after the 2026-08-03 audit. Sections 1 to 9 are preserved as the audit-date record and are not rewritten.
-
-The remediation plan referenced throughout this document as `PLAN.md` was completed on 2026-08-05 and archived to [`docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md`](docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md). Its item identifiers below are unchanged and resolve against that archived file.
-
-**Current readiness:** Ready within verified scope
-
-**Rating after remediation:** 8/10. The conditions the audit named for that score are met: the quality gates pass on a clean checkout and the service worker navigation path is corrected. The remaining distance to a higher score is verification breadth rather than implementation quality — no screen-reader confirmation, no cross-browser matrix beyond Chromium, and no measured performance results.
-
-### Findings resolved
-
-All four P1 findings and all six P2 findings carry a `Resolution status` line in their own entries. In summary: P1-01 regenerated app-shell manifest, P1-02 per-document navigation caching with a rebuilt redirected fallback, P1-03 app-shell payload reduced and the budget recalibrated to 180 KB as an approved decision, P1-04 Prettier failures cleared and line endings normalized, P2-01 `aria-current` in application navigation, P2-02 shared error status region, P2-03 canonical logo path and deliberate precache, P2-04 single not-found mechanism, P2-05 failed local writes reported instead of confirmed, P2-06 changelog CI claim corrected.
-
-### Final gate result
-
-`npm run check` completed end to end with exit code 0 in a fresh Windows worktree created from commit `e5a6ff2`, after a platform-correct `npm ci`. Executed in the order defined by `package.json`:
-
-- PWA manifest check — passed, 90 assets, version `76feb9d54448`
-- ESLint, Stylelint and Prettier — passed
-- Vitest unit — 17 files, 103 tests passed
-- Vitest integration — 5 files, 14 tests passed
-- Playwright end-to-end — 36 tests passed
-- Playwright accessibility — 12 tests passed
-- CSS and JavaScript builds — completed; the build regenerated `css/style.min.css`, which had been stale relative to `css/components/badge.css` and `css/views/dashboard.css`
-- Performance budget — passed: JavaScript 57.5 KB / 85.0 KB, CSS 15.3 KB / 28.0 KB, app shell 172.3 KB / 180.0 KB
-
-The Vitest file count differs from the 21 recorded at the audit date because `tests/unit/service-worker-navigation.test.js` was added during remediation, bringing the total to 22. The Playwright spec count is unchanged and is reported here split into 4 end-to-end and 1 accessibility spec.
-
-One browser test required correction during this run: `tests/e2e/visual-smoke.spec.js` expected a legal-page return link named `Otwórz demo`, while the pages expose `Wróć do logowania FlowDesk`. The selector was aligned to the markup; no application source changed.
-
-### Limitations that still apply
-
-The original limitations in section 2 described the audit environment and remain an accurate record of it. The following apply to the current state:
-
-- Playwright runs Chromium only. No cross-browser verification was performed.
-- The accessibility suite is axe-based and is not a formal WCAG conformance claim. No screen-reader verification was performed for the navigation `aria-current` or the form error status region.
-- Contrast compliance was not verified through computed-style analysis.
-- No performance measurement beyond the repository's own gzip budget was taken. No Lighthouse run was performed.
-- No live deployment was inspected and no deployment success is claimed.
+- `CHANGELOG.md` — canonical record of what changed
+- [`docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md`](docs/archive/plans/2026-08-05-flowdesk-remediation-plan.md) — how each finding was remediated and verified
+- [`docs/adr/009-vite-production-build.md`](docs/adr/009-vite-production-build.md) — the build and deployment contract that superseded P1-01, O-01 and O-03
+- [`docs/pwa-strategy.md`](docs/pwa-strategy.md), [`docs/performance-budget.md`](docs/performance-budget.md), [`docs/release-checklist.md`](docs/release-checklist.md) — current operational contracts
+- [`docs/archive/audits/2026-07-24-daily-front-end-audit.md`](docs/archive/audits/2026-07-24-daily-front-end-audit.md) — the audit that preceded this one

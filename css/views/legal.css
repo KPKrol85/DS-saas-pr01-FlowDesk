@@ -218,6 +218,7 @@
 .legal-document__return {
   display: inline-flex;
   margin-top: var(--space-24);
+  font-size: var(--fs-14);
 }
 
 .legal-footer {
