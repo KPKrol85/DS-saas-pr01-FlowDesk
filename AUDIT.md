@@ -203,6 +203,7 @@ None detected.
 - **Current evidence:** `css/style.css` is a 1 KB file consisting of 26 `@import` statements. In the browser this is a nested request chain, whereas `css/style.min.css` — the flattened equivalent — is not served. All 26 files are precached by the service worker, which removes the cost for repeat visits but not for the first paint.
 - **Potential value:** A measurement would establish whether the layered source architecture has a first-visit cost worth addressing, and would replace assumption with evidence.
 - **Scope boundary:** Optional. No measurement was taken during this audit, and no performance regression is claimed. The layered CSS structure is a deliberate, documented architecture decision.
+- **Resolution status:** Resolved after this audit date under `PLAN.md` item `O-03`, by removal rather than by measurement. The Vite migration recorded in `docs/adr/009-vite-production-build.md` consolidates the source `@import` chain at build time, so production serves one generated stylesheet referenced by all five built documents, with no `@import` remaining in it. The layered source architecture is unchanged. Confirmed through production-artifact inspection, not a browser network recording.
 
 ## 8. Readiness conclusion at the audit date
 

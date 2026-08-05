@@ -14,7 +14,7 @@
 
 ## Current priorities
 
-The audit-remediation plan is complete. Every required item in Phases 1 to 6 is closed and `npm run check` passes end to end. Remaining work is limited to the optional improvements below, none of which is required for release or portfolio presentation.
+The plan is complete. Every required item in Phases 1 to 6 is closed, `npm run check` passes end to end, and all three optional improvements are resolved. No planned work remains open.
 
 ## Phase 1 — Restore the documented quality gate
 
@@ -157,6 +157,8 @@ The audit-remediation plan is complete. Every required item in Phases 1 to 6 is 
   - **Implementation:** a source-root `_headers` file carries the Content-Security-Policy plus `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options` and `Permissions-Policy`, and is copied into `dist/` through the existing `staticAssets` allowlist. The policy gained `frame-ancestors 'none'`, and the `<meta http-equiv="Content-Security-Policy">` element was removed from `index.html` so there is one source of truth. A scan of all five documents and of `js/` found no inline script, inline event handler or inline `style` attribute, so no directive was weakened.
   - **Verification:** `npm run check` passed in full, the build produced `dist/_headers` identical to the source file, and the built HTML contains no CSP meta element. A Netlify **draft** deploy (`6a734a072053f50e32eb67f8`) processed one header rule without errors, and HTTP responses for `/`, `/offline.html` and `/regulamin.html` each carried the expected Content-Security-Policy including `frame-ancestors 'none'`, together with all four complementary headers. Verification was performed against that draft deploy; no production deployment was made, and no browser-console CSP inspection was recorded.
 
-- [ ] **O-03 — Measure the CSS entry-point request pattern**
+- [x] **O-03 — Measure the CSS entry-point request pattern**
   - **Value:** `css/style.css` is a 1 KB file of 26 `@import` statements, which the browser resolves as a request chain on first visit. The service worker removes the cost for repeat visits but not for first paint. A measurement would replace assumption with evidence before any structural change is considered.
   - **Scope boundary:** Non-blocking. No measurement was taken and no regression is claimed. The layered CSS structure is a deliberate architecture decision.
+  - **Resolution:** the concern no longer applies to production. The Vite migration consolidates the source `@import` chain at build time, so the browser receives one stylesheet instead of a nested request chain. No measurement of the old behaviour was needed, because the behaviour itself was removed; no CSS architecture rewrite was required and the layered source entry is unchanged.
+  - **Verification:** production-artifact inspection of the current `dist/`. `dist/build/` contains exactly one CSS file, that file contains no `@import` statement, and all five built HTML documents reference the same generated stylesheet. No built document references `/css/style.css`, and the source layers are not published — there is no `dist/css/` directory. The source entry still declares 27 `@import` statements across 28 CSS files, confirming the layered architecture is intact. The generated filename is hashed and intentionally not recorded here. This was static artifact inspection; no browser DevTools network recording was taken.
