@@ -195,6 +195,7 @@ None detected.
 - **Current evidence:** The Content Security Policy exists only as a `<meta http-equiv>` tag in `index.html`. The static pages — `polityka-prywatnosci.html`, `regulamin.html` and `cookies.html` — carry no policy at all. The repository contains `_redirects` but no `_headers` file.
 - **Potential value:** A `_headers` file would apply one policy across every document and would allow directives that a meta tag cannot express, notably `frame-ancestors`. The current runtime is already compatible with a strict policy, since no module emits inline styles or handlers, so the change carries little risk.
 - **Scope boundary:** Optional and outside the current demo scope. `README.md` already lists hosting security headers as production work rather than a present capability.
+- **Implementation status:** Implemented after this audit date under `PLAN.md` item `O-02`. A source-root `_headers` file now delivers the Content-Security-Policy with `frame-ancestors 'none'` plus `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options` and `Permissions-Policy` across every document, and the CSP meta element was removed from `index.html`. Confirmed on a Netlify draft deploy through HTTP responses for `/`, `/offline.html` and `/regulamin.html`; no production deployment was made.
 
 ### Measure the CSS entry-point request pattern before assuming it is acceptable
 

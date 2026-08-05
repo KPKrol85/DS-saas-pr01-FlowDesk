@@ -157,7 +157,7 @@ Dynamiczny tekst użytkownika powinien przechodzić przez:
 - `safeText`,
 - albo bezpieczne DOM API z `textContent`.
 
-`index.html` zawiera statyczną meta CSP dla demo. Produkcyjny hosting powinien przenieść CSP do nagłówków HTTP.
+Content-Security-Policy jest dostarczana jako nagłówek HTTP z pliku `_headers`, kopiowanego do `dist/` przez jawną listę w `vite.config.js`. Dzięki temu polityka obejmuje wszystkie pięć dokumentów, a nie tylko `index.html`, i może użyć `frame-ancestors 'none'`, czego meta CSP nie potrafi wyrazić. W `index.html` nie ma już meta CSP — istnieje jedno źródło prawdy.
 
 ## PWA and cache
 
@@ -226,7 +226,6 @@ Przed produkcją wymagane są:
 - server-side validation,
 - server-side RBAC,
 - monitoring,
-- produkcyjne nagłówki security,
 - docelowe wartości SEO/Open Graph,
 - release i rollback process.
 

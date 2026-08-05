@@ -28,6 +28,7 @@ const staticAssets = [
   'robots.txt',
   'service-worker.js',
   'sitemap.xml',
+  '_headers',
   '_redirects'
 ];
 

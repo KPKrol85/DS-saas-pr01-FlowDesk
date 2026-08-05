@@ -31,6 +31,10 @@ The project uses semantic versioning language for named milestones. See `docs/ve
 - Fixed state-changing actions to report a failed local write instead of confirming success, by propagating the storage result through the persistence adapter into the existing action result and failure toasts.
 - Fixed service worker navigation caching so each document is cached under its own URL instead of one fixed key, preventing a legal page from overwriting the application shell, and rebuilt redirected cached responses so an uncached document falls back to `offline.html` instead of failing the navigation.
 
+### Security
+
+- Added a source-root `_headers` file that delivers the security policy as HTTP response headers from the published `dist/` artifact, so it now covers every document rather than only the SPA entry. The Content-Security-Policy moved out of the `index.html` meta element and gained `frame-ancestors 'none'`, which a meta element cannot express, alongside `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options` and `Permissions-Policy`. Confirmed on a Netlify draft deploy through the HTTP responses for `/`, `/offline.html` and `/regulamin.html`.
+
 ### Removed
 
 - Removed internal planning and context documents from the tracked repository, including the earlier to-do, implementation-plan and product-readiness files.

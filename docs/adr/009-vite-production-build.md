@@ -41,7 +41,7 @@ Two things changed around it. `scripts/generate-service-worker-manifest.js` now 
 
 ## Deployment
 
-`netlify.toml` sets the build command and publishes `dist`. Deployment stays manual through the Netlify CLI; no Git integration is enabled. Playwright runs against `vite preview` on port 4173, so browser tests exercise the same files Netlify publishes.
+`netlify.toml` sets the build command and publishes `dist`. Security headers are delivered from a source-root `_headers` file copied into the artifact by the same allowlist as `_redirects`, so Netlify reads both from `dist/`; the Content-Security-Policy therefore covers all five documents as an HTTP header rather than a meta element on the SPA entry alone. Deployment stays manual through the Netlify CLI; no Git integration is enabled. Playwright runs against `vite preview` on port 4173, so browser tests exercise the same files Netlify publishes.
 
 ## Consequences
 

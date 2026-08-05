@@ -6,10 +6,8 @@
     <meta name="description" content="FlowDesk — frontend-only Service Management Dashboard demo z lokalnymi danymi, demo auth i PWA bez backendu." />
     <meta name="theme-color" content="#0b0f1a" />
 
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
-    />
+    <!-- The Content-Security-Policy is delivered as an HTTP header from _headers, so it covers
+         every document and can use frame-ancestors, which a meta element cannot express. -->
 
     <meta property="og:title" content="FlowDesk — frontend-only SaaS demo" />
     <meta property="og:description" content="Portfolio-ready Service Management Dashboard demo with local demo data, demo auth and no backend." />

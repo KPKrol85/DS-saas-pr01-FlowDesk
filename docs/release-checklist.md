@@ -73,7 +73,7 @@ git diff --check
 - Build the project.
 - Deploy the static directory contents.
 - Ensure `_redirects` or hosting equivalent supports SPA fallback.
-- Ensure production security headers are configured at hosting level.
+- Security headers ship from the source-root `_headers` file, copied into `dist/` by the Vite allowlist. Netlify reads them from the published artifact. The current policy was confirmed on a draft deploy through HTTP responses for `/`, `/offline.html` and `/regulamin.html`; re-check the response headers on a draft whenever `_headers` changes, before promoting a release.
 - Ensure `index.html`, `sitemap.xml`, `robots.txt`, canonical and Open Graph URLs are production values.
 - Replace pending deployment URL metadata only after the final public URL is known.
 - Confirm README public demo notes still describe frontend-only scope, demo auth and local demo data accurately.
