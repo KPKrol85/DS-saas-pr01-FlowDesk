@@ -10,11 +10,17 @@ const checkOnly = process.argv.includes('--check');
 
 // The app shell is inventoried from the built artifact only. Nothing here falls back to the
 // repository source tree, so a missing or stale dist/ fails loudly instead of validating sources.
-const explicitAssets = ['/', '/index.html', '/offline.html', '/manifest.webmanifest'];
-const runtimeDirectories = ['build', 'assets/fonts', 'assets/icons', 'assets/logo'];
-const allowedExtensions = new Set(['.css', '.js', '.woff2', '.svg']);
+// Documents and stable-URL assets the offline shell needs. `/assets/logo/logo.svg` is listed
+// explicitly because runtime JavaScript renders that URL, so Vite never sees the reference.
+// Favicons, the social image, shortcut icons, the legal pages and js/legal-theme.js are
+// deliberately absent: they are runtime-cacheable, not required to start the shell offline.
+const explicitAssets = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/assets/logo/logo.svg'];
+// Only Vite output is scanned. Stable copies are never walked, so no asset can enter the shell
+// under two ownership models.
+const runtimeDirectories = ['build'];
+const allowedExtensions = new Set(['.css', '.js', '.woff2']);
 // service-worker.js loads the manifest, and the manifest cannot hash itself.
-const ignoredFiles = new Set(['/service-worker.js', '/service-worker-assets.js', '/assets/icons/favicon/favicon.svg']);
+const ignoredFiles = new Set(['/service-worker.js', '/service-worker-assets.js']);
 
 const toAssetPath = (filePath) => `/${relative(distDir, filePath).split(sep).join('/')}`;
 

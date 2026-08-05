@@ -8,8 +8,16 @@ const ORIGIN = 'https://flowdesk.test';
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const readProjectFile = (relativePath) => readFileSync(resolve(projectRoot, relativePath), 'utf8');
 
-// `npx serve` enables cleanUrls, so every '*.html' request answers 301 to the extensionless
-// path. Precaching therefore stores redirected responses, which a navigation cannot reuse.
+// Deterministic stand-in for the generated dist/service-worker-assets.js. It matches the public
+// runtime shape without duplicating the generator, so these tests run before any build exists.
+const TEST_MANIFEST = {
+  version: 'test-manifest',
+  appShell: ['/', '/index.html', '/offline.html']
+};
+
+// A host that redirects document URLs — for example an extensionless-URL rewrite — makes the
+// precache store redirected responses, which a navigation cannot reuse. That condition is what
+// asNavigationResponse exists to handle, so the precache fixture reproduces it.
 const precachedResponse = (key) => ({
   body: `precached:${key}`,
   status: 200,
@@ -42,16 +50,19 @@ const createCaches = () => {
   };
 };
 
-// Executes the canonical service worker source in a worker-like sandbox, with the
-// generated manifest inlined instead of loaded through importScripts.
-const loadServiceWorker = ({ online }) => {
+// Executes the canonical service worker source in a worker-like sandbox. The production
+// importScripts call is stripped and the fixture manifest is supplied in its place; the worker
+// logic itself is never reimplemented here.
+const loadServiceWorker = ({ online = true } = {}) => {
   const listeners = new Map();
   const caches = createCaches();
-  const source = `${readProjectFile('service-worker-assets.js')}\n${readProjectFile('service-worker.js').replace("importScripts('/service-worker-assets.js');", '')}`;
+  const network = { online, responses: 0 };
+  const source = readProjectFile('service-worker.js').replace("importScripts('/service-worker-assets.js');", '');
 
   const sandbox = {
     URL,
     console,
+    FLOWDESK_SW_MANIFEST: TEST_MANIFEST,
     Response: class {
       constructor(body, init = {}) {
         this.body = body;
@@ -65,9 +76,12 @@ const loadServiceWorker = ({ online }) => {
         return { body: null, status: 0, redirected: false };
       }
     },
+    // Every network response carries a fresh sequence number, so a cached body can never be
+    // mistaken for a newly fetched one.
     fetch: async (request) => {
-      if (!online) throw new Error('offline');
-      const body = `network:${request.url}`;
+      if (!network.online) throw new Error('offline');
+      network.responses += 1;
+      const body = `network:${request.url}#${network.responses}`;
       return { ok: true, redirected: false, type: 'basic', body, clone: () => ({ body }) };
     },
     caches: caches.api,
@@ -81,6 +95,9 @@ const loadServiceWorker = ({ online }) => {
 
   return {
     caches,
+    setOnline: (value) => {
+      network.online = value;
+    },
     install: async () => {
       let pending;
       listeners.get('install')({ waitUntil: (value) => (pending = value) });
@@ -104,31 +121,41 @@ const loadServiceWorker = ({ online }) => {
 
 describe('service worker navigation caching', () => {
   it('does not let a legal page overwrite the cached application entry', async () => {
-    const sw = loadServiceWorker({ online: true });
+    const sw = loadServiceWorker();
     await sw.install();
 
-    await sw.navigate('/');
-    await sw.navigate('/regulamin.html');
+    const appEntry = await sw.navigate('/');
+    const legalPage = await sw.navigate('/regulamin.html');
 
-    expect((await sw.caches.api.match('/index.html')).body).toBe(`network:${ORIGIN}/`);
-    expect((await sw.caches.api.match('/regulamin.html')).body).toBe(`network:${ORIGIN}/regulamin.html`);
+    expect((await sw.caches.api.match('/index.html')).body).toBe(appEntry.body);
+    expect((await sw.caches.api.match('/regulamin.html')).body).toBe(legalPage.body);
+    expect(appEntry.body).not.toBe(legalPage.body);
   });
 
   it('returns the cached application entry for offline navigation to the root', async () => {
-    const sw = loadServiceWorker({ online: true });
+    const sw = loadServiceWorker();
     await sw.install();
+
+    // Online first, so the real network response replaces the precached entry under /index.html.
+    const cached = await sw.navigate('/');
     await sw.navigate('/regulamin.html');
 
+    sw.setOnline(false);
     const response = await sw.navigate('/');
-    expect(response.body).toBe(`network:${ORIGIN}/`);
+
+    // Asserting the exact earlier response makes this offline-only: the mocked network numbers
+    // every reply, so a fresh fetch would return a different body, and the precached fixture
+    // body differs again. Only the cache can satisfy all three.
+    expect(response.body).toBe(cached.body);
+    expect(response.body).not.toBe('precached:/index.html');
   });
 
   it('falls back to a navigable offline.html for an uncached non-application document', async () => {
     const sw = loadServiceWorker({ online: false });
     await sw.install();
 
-    // Fails before the fix: the precached offline.html is a redirected response and
-    // respondWith rejects it for a navigation, which surfaced as ERR_FAILED in Chrome.
+    // Fails without asNavigationResponse: the precached offline.html is a redirected response
+    // and respondWith rejects it for a navigation, which surfaced as ERR_FAILED in Chrome.
     const response = await sw.navigate('/offline-check.html');
     expect(response.body).toBe('precached:/offline.html');
     expect(response.redirected).toBe(false);

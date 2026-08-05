@@ -8,10 +8,8 @@ const projectRoot = resolve(import.meta.dirname);
 // web manifest, the service worker, page metadata, the sitemap or the hosting platform.
 // Everything else reaches dist/ through the HTML entry documents that Vite processes.
 const staticAssets = [
-  'assets/fonts/inter-400.woff2',
-  'assets/fonts/inter-500.woff2',
-  'assets/fonts/inter-600.woff2',
-  'assets/fonts/inter-700.woff2',
+  // Fonts are intentionally absent here: they are referenced from CSS, so Vite emits them as
+  // hashed files under /build/ and owns them exclusively. Copying them too would duplicate them.
   'assets/icons/og.png',
   'assets/icons/favicon/apple-touch-icon.png',
   'assets/icons/favicon/favicon-96x96.png',
@@ -54,7 +52,11 @@ export default defineConfig({
   // The static contract above is explicit, so Vite's implicit public directory stays off.
   publicDir: false,
   server: { port: 8181, strictPort: true },
-  preview: { port: 4173, strictPort: true },
+  preview: {
+    host: '127.0.0.1',
+    port: 4173,
+    strictPort: true
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

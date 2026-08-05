@@ -8,14 +8,17 @@ const API_OFFLINE_ERROR = JSON.stringify({
   }
 });
 
-const manifest = self.FLOWDESK_SW_MANIFEST || { version: 'dev', appShell: [OFFLINE_URL, '/index.html', '/css/style.css'] };
+const APP_ENTRY_URL = '/index.html';
+
+const manifest = self.FLOWDESK_SW_MANIFEST || {
+  version: 'dev',
+  appShell: [OFFLINE_URL, APP_ENTRY_URL]
+};
 const CACHE_PREFIX = 'flowdesk-app-shell';
 const CACHE_NAME = `${CACHE_PREFIX}-${manifest.version}`;
 const APP_SHELL = manifest.appShell;
 const APP_SHELL_SET = new Set(APP_SHELL);
 const STATIC_ASSET_PATTERN = /\.(?:css|js|woff2|svg|webmanifest)$/;
-
-const APP_ENTRY_URL = '/index.html';
 
 const normalizePathname = (url) => (url.pathname === '/' ? '/' : url.pathname);
 

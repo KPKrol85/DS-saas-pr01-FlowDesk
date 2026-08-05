@@ -14,11 +14,10 @@ npm run pwa:manifest
 
 Skrypt `scripts/generate-service-worker-manifest.js` tworzy `dist/service-worker-assets.js` po zakończeniu builda Vite i inwentaryzuje wyłącznie zawartość `dist/`. Manifest obejmuje tylko runtime app-shell:
 
-- `/`, `index.html`, `offline.html`, `manifest.webmanifest`
-- wygenerowane, hashowane pakiety CSS i JavaScript z `dist/build/`
-- fonty `woff2`
-- ikony PWA
-- `assets/logo/logo.svg` — logo powłoki renderowane przez sidebar i drawer, precache'owane celowo, aby było dostępne przy zimnym starcie offline
+- `/`, `index.html`, `offline.html`
+- wygenerowane, hashowane pakiety CSS, JavaScript i fonty `woff2` z `dist/build/`
+- `/manifest.webmanifest` — stabilny adres, do którego odwołuje się produkcyjny HTML
+- `assets/logo/logo.svg` — logo powłoki renderowane dynamicznie przez sidebar i drawer, więc Vite nie widzi tej referencji; precache'owane celowo, aby było dostępne przy zimnym starcie offline
 
 Manifest celowo pomija:
 
@@ -26,10 +25,10 @@ Manifest celowo pomija:
 - `tests`
 - `docs`
 - screenshoty i wyniki testów
-- pliki źródłowe z repozytorium — generator nigdy nie sięga poza `dist/`
+- pliki źródłowe z repozytorium — generator skanuje wyłącznie `dist/build/`
 - `service-worker.js` i `service-worker-assets.js` — manifest nie hashuje sam siebie
-- `assets/logo/logo.png` — wariant rastrowy nieużywany w runtime; filtr rozszerzeń generatora dopuszcza z tego katalogu wyłącznie `.svg`
-- `assets/icons/favicon/favicon.svg` — serwowany normalnie, ale niewymagany do działania offline
+- favikony, `assets/icons/og.png` i ikony skrótów — serwowane pod stabilnymi adresami, ale niewymagane do startu powłoki offline
+- `js/legal-theme.js` i strony prawne — network-first, cache'owane runtime po wizycie online
 
 Walidacja:
 

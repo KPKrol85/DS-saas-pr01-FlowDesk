@@ -23,9 +23,13 @@ Adopt Vite as build and development infrastructure. FlowDesk remains a Vanilla H
 
 ## Public asset contract
 
-Copied verbatim to `dist/`, keeping their exact URLs: the four Inter `woff2` weights, the PWA and favicon icons, the shortcut icons, the Open Graph image, `assets/logo/logo.svg`, `manifest.webmanifest`, `service-worker.js`, `robots.txt`, `sitemap.xml` and `_redirects`.
+Copied verbatim to `dist/`, keeping their exact URLs: the PWA and favicon icons, the shortcut icons, the Open Graph image, `assets/logo/logo.svg`, `js/legal-theme.js`, `manifest.webmanifest`, `service-worker.js`, `robots.txt`, `sitemap.xml` and `_redirects`.
 
-Deliberately excluded: tests, documentation, ADRs, `scripts/`, repository configuration, agent files, `assets/logo/logo.png` and `assets/icons/favicon/favicon.svg`. The last two are not referenced by the shell and were already outside the precache.
+Fonts are deliberately not on that list. They are referenced from CSS, so Vite emits them as hashed files under `/build/` and owns them exclusively; copying them as well would ship both a stable and a hashed copy of the same face.
+
+HTML references that must keep a stable URL carry `vite-ignore`, so Vite leaves them untouched: the web-manifest link, the favicon and Apple Touch Icon links on all four documents, and on the legal pages the classic `js/legal-theme.js` script and the `assets/logo/logo.svg` image. Without it Vite would rewrite them to hashed `/build/` copies that duplicate the stable ones.
+
+Deliberately excluded: tests, documentation, ADRs, `scripts/`, repository configuration, agent files and `assets/logo/logo.png`.
 
 `offline.html` is a build input rather than a copied file, because it links the stylesheet and would otherwise point at a source path that does not exist in `dist/`.
 
@@ -33,7 +37,7 @@ Deliberately excluded: tests, documentation, ADRs, `scripts/`, repository config
 
 The custom service worker is preserved. Its caching strategy, per-document navigation caching, offline fallback, update prompt and `SKIP_WAITING` flow are unchanged, and no PWA plugin is introduced.
 
-Two things changed around it. `scripts/generate-service-worker-manifest.js` now inventories `dist/` and writes `dist/service-worker-assets.js` after Vite has produced its final output, so the precache lists real hashed bundles. Registration is gated behind `import.meta.env.PROD`, so the development server is never controlled by a worker precaching build output. The update-prompt event listener stays registered in every environment, because the browser suite dispatches `flowdesk:sw-update-available` directly.
+Two things changed around it. `scripts/generate-service-worker-manifest.js` now inventories `dist/build/` and writes `dist/service-worker-assets.js` after Vite has produced its final output, so the precache lists real hashed bundles. Stable copies are never walked; the only stable URLs in the shell are `/manifest.webmanifest` and `/assets/logo/logo.svg`, the latter because runtime JavaScript renders it and Vite never sees the reference. Favicons, the social image, shortcut icons, the legal documents and `js/legal-theme.js` stay out of the shell and remain runtime-cacheable. Registration is gated behind `import.meta.env.PROD`, so the development server is never controlled by a worker precaching build output. The update-prompt event listener stays registered in every environment, because the browser suite dispatches `flowdesk:sw-update-available` directly.
 
 ## Deployment
 
