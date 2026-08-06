@@ -20,6 +20,18 @@
   animation: toast-enter var(--motion-base) var(--ease-standard);
 }
 
+/* The opaque `background: var(--bg-elev)` above stays as the fallback. Only browsers that can
+   actually blur get the translucent surface, so a browser without backdrop-filter keeps a fully
+   solid toast instead of a see-through one. --bg-glass is the existing theme-aware token already
+   used by the topbar, so light and dark each get their own tint. */
+@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+  .toast {
+    background: var(--bg-glass);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+
 .toast--leaving {
   animation: toast-exit var(--motion-fast) var(--ease-standard) forwards;
 }
