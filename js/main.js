@@ -236,7 +236,7 @@ const renderShell = (activePath, view, params = {}) => {
       content: `
         <div class="list">
           <p>Wybierz formularz, który chcesz otworzyć w lokalnej przestrzeni demo.</p>
-          ${button({ label: 'Nowy klient', variant: 'secondary', iconName: 'clients', attributes: { 'data-quick': 'client' } })}
+          ${button({ label: 'Nowy klient', variant: 'secondary', iconName: 'clientAdd', attributes: { 'data-quick': 'client' } })}
           ${button({ label: 'Nowe zlecenie', variant: 'secondary', iconName: 'projects', attributes: { 'data-quick': 'project' } })}
         </div>
       `,
