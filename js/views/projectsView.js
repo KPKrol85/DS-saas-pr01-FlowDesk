@@ -18,6 +18,17 @@ const priorityOptions = PROJECT_PRIORITIES;
 
 const isArchived = (record) => Boolean(record?.archivedAt);
 
+// PROJECT_STATUSES are stable English keys used by the store, filters and persistence. Only the
+// visible label is localized; every value passed to a selector, filter or badgeClass stays raw.
+const statusLabels = {
+  Draft: 'Szkic',
+  'In progress': 'W toku',
+  Review: 'Weryfikacja',
+  Done: 'Zakończone'
+};
+
+const getStatusLabel = (status) => statusLabels[status] || status;
+
 const getProjectRelationLabel = (project) => {
   if (project.client) return project.client.name;
   return project.clientId ? 'Klient niedostępny' : 'Bez klienta';
@@ -69,7 +80,7 @@ const getProjectsEmptyState = (state, filters) => {
 };
 
 const getColumnEmptyCopy = (status, filters) => {
-  if (filters.status !== 'all') return `Brak zleceń w statusie ${status} dla wybranych filtrów.`;
+  if (filters.status !== 'all') return `Brak zleceń w statusie ${getStatusLabel(status)} dla wybranych filtrów.`;
   if (filters.priority !== 'all') return `Brak zleceń o priorytecie ${filters.priority} w tej kolumnie.`;
   if (filters.archive === 'archived') return 'Brak zarchiwizowanych zleceń w tej kolumnie.';
   return 'Brak zleceń w tej kolumnie.';
@@ -91,7 +102,7 @@ const projectModalContent = (project = {}, clients = []) => `
         id: 'status',
         label: 'Status',
         value: project.status,
-        options: statusColumns.map((status) => ({ value: status, label: status }))
+        options: statusColumns.map((status) => ({ value: status, label: getStatusLabel(status) }))
       })}
     </div>
     <div class="form-grid form-grid--two">
@@ -147,7 +158,7 @@ export const renderProjectsView = (container) => {
               <label class="input__label" for="statusFilter">Status</label>
               <select class="input__select" id="statusFilter">
                 <option value="all">Wszystkie</option>
-                ${statusColumns.map((status) => `<option value="${escapeAttribute(status)}" ${filterState.status === status ? 'selected' : ''}>${escapeHTML(status)}</option>`).join('')}
+                ${statusColumns.map((status) => `<option value="${escapeAttribute(status)}" ${filterState.status === status ? 'selected' : ''}>${escapeHTML(getStatusLabel(status))}</option>`).join('')}
               </select>
             </div>
             <div class="input">
@@ -179,8 +190,8 @@ export const renderProjectsView = (container) => {
               return `
                 <div class="kanban__column data-kanban__column">
                   <div class="kanban__title">
-                    <span>${escapeHTML(status)}</span>
-                    <span class="data-count">${columnItems.length}</span>
+                    <span class="kanban__title-label">${escapeHTML(getStatusLabel(status))}</span>
+                    <span class="data-count kanban__count">${columnItems.length}</span>
                   </div>
                   <div class="list data-list data-kanban__list">
                     ${
@@ -193,20 +204,26 @@ export const renderProjectsView = (container) => {
                                 <span class="input__helper data-card__meta">${escapeHTML(getProjectRelationLabel(project))}</span>
                                 <div class="data-badges data-card__badges">
                                   <span class="badge ${badgeClass(project.priority)}">${escapeHTML(project.priority)}</span>
-                                  <span class="badge ${badgeClass(project.status)}">${escapeHTML(project.status)}</span>
+                                  <span class="badge ${badgeClass(project.status)}">${escapeHTML(getStatusLabel(project.status))}</span>
                                   ${project.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : ''}
                                 </div>
-                                <span class="input__helper data-card__meta">Termin: ${escapeHTML(formatDate(project.dueDate))}</span>
-                                <div class="table__actions data-actions data-actions--card">
-                                  ${button({ label: 'Edytuj', variant: 'ghost', iconName: 'edit', attributes: { 'data-action': 'edit', 'data-id': project.id } })}
+                                <span class="input__helper data-card__meta kanban__card-due">Termin: ${escapeHTML(formatDate(project.dueDate))}</span>
+                                <div class="kanban__card-footer">
+                                  ${button({ label: 'Edytuj', variant: 'ghost', iconName: 'edit', className: 'kanban__card-action', attributes: { 'data-action': 'edit', 'data-id': project.id } })}
                                   ${
                                     project.archivedAt
-                                      ? button({ label: 'Przywróć', variant: 'ghost', iconName: 'reset', attributes: { 'data-action': 'restore', 'data-id': project.id } })
+                                      ? button({
+                                          label: 'Przywróć',
+                                          variant: 'ghost',
+                                          iconName: 'reset',
+                                          className: 'kanban__card-action',
+                                          attributes: { 'data-action': 'restore', 'data-id': project.id }
+                                        })
                                       : button({
                                           label: 'Archiwizuj',
                                           variant: 'ghost',
                                           iconName: 'delete',
-                                          className: 'btn--destructive',
+                                          className: 'btn--destructive kanban__card-action',
                                           attributes: { 'data-action': 'archive', 'data-id': project.id }
                                         })
                                   }
