@@ -6,6 +6,7 @@ import { CLIENT_SEGMENTS, CLIENT_STATUSES } from '../domain/constants.js';
 import { button } from '../components/button.js';
 import { openConfirmDialog } from '../components/confirmDialog.js';
 import { emptyState } from '../components/emptyState.js';
+import { icon } from '../components/icon.js';
 import { inputField, selectField, setFieldError, textareaField } from '../components/formControls.js';
 import { openModal } from '../components/modal.js';
 import { pageHeader } from '../components/pageHeader.js';
@@ -170,29 +171,35 @@ export const renderClientsView = (container) => {
         <section class="clients-layout">
           <div class="card data-panel clients-panel">
             <div class="list data-toolbar">
-              <div class="form-grid form-grid--two data-toolbar__filters">
+              <div class="form-grid form-grid--two data-toolbar__filters clients-toolbar__filters">
                 <div class="input">
                   <label class="input__label" for="filterInput">Filtruj</label>
-                  <input class="input__field" id="filterInput" placeholder="Wpisz nazwę lub email" value="${escapeAttribute(filterState.term)}" />
+                  <input class="input__field toolbar-filter__field" id="filterInput" placeholder="Wpisz nazwę lub email" value="${escapeAttribute(filterState.term)}" />
                 </div>
                 <div class="input">
                   <label class="input__label" for="sortSelect">Sortuj</label>
-                  <select class="input__select" id="sortSelect">
-                    <option value="name" ${filterState.sort === 'name' ? 'selected' : ''}>Nazwa</option>
-                    <option value="status" ${filterState.sort === 'status' ? 'selected' : ''}>Status</option>
-                    <option value="owner" ${filterState.sort === 'owner' ? 'selected' : ''}>Owner</option>
-                  </select>
+                  <div class="toolbar-filter__control">
+                    <select class="input__select toolbar-filter__select" id="sortSelect">
+                      <option value="name" ${filterState.sort === 'name' ? 'selected' : ''}>Nazwa</option>
+                      <option value="status" ${filterState.sort === 'status' ? 'selected' : ''}>Status</option>
+                      <option value="owner" ${filterState.sort === 'owner' ? 'selected' : ''}>Owner</option>
+                    </select>
+                    ${icon('chevronDown', { className: 'toolbar-filter__chevron', size: 16 })}
+                  </div>
                 </div>
                 <div class="input">
                   <label class="input__label" for="archiveSelect">Zakres</label>
-                  <select class="input__select" id="archiveSelect">
-                    <option value="active" ${filterState.archive === 'active' ? 'selected' : ''}>Aktywni</option>
-                    <option value="archived" ${filterState.archive === 'archived' ? 'selected' : ''}>Archiwum</option>
-                    <option value="all" ${filterState.archive === 'all' ? 'selected' : ''}>Wszyscy</option>
-                  </select>
+                  <div class="toolbar-filter__control">
+                    <select class="input__select toolbar-filter__select" id="archiveSelect">
+                      <option value="active" ${filterState.archive === 'active' ? 'selected' : ''}>Aktywni</option>
+                      <option value="archived" ${filterState.archive === 'archived' ? 'selected' : ''}>Archiwum</option>
+                      <option value="all" ${filterState.archive === 'all' ? 'selected' : ''}>Wszyscy</option>
+                    </select>
+                    ${icon('chevronDown', { className: 'toolbar-filter__chevron', size: 16 })}
+                  </div>
                 </div>
               </div>
-              ${button({ label: 'Dodaj klienta', id: 'addClient', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
+              ${button({ label: 'Dodaj klienta', id: 'addClient', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action btn--compact' })}
             </div>
             <div class="table-wrapper data-table-wrapper">
               ${

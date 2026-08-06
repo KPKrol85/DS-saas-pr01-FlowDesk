@@ -18,6 +18,41 @@
   justify-self: start;
 }
 
+/* Shared presentation contract for toolbar filter controls, consumed by the Projects and Clients
+   toolbars. It owns only typography and the native select-arrow replacement; border, radius,
+   background and focus still come from .input__field / .input__select, and each view keeps its
+   own grid, control widths, wrapping and alignment. */
+.toolbar-filter__field,
+.toolbar-filter__select {
+  font-size: var(--fs-12);
+}
+
+/* Positioning context for the decorative chevron, so the icon is placed against the control
+   rather than against the toolbar. */
+.toolbar-filter__control {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+/* The select stays the real interactive element; only its system arrow is suppressed. */
+.toolbar-filter__select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--space-40);
+}
+
+/* Centred by top/transform so it stays aligned at any control height, and inert so every click,
+   focus and keyboard interaction still reaches the select underneath. */
+.toolbar-filter__chevron {
+  position: absolute;
+  top: 50%;
+  right: var(--space-12);
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
 .data-table {
   display: table;
   overflow-x: visible;

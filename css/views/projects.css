@@ -1,32 +1,3 @@
-/* The select stays the real interactive control. Only its native arrow is suppressed here, in the
-   Projects filter scope, and the centralized chevron is drawn over it. The wrapper is the
-   positioning context, so the icon is placed against the control and not against the toolbar. */
-.projects-filter__control {
-  position: relative;
-  display: grid;
-  min-width: 0;
-}
-
-/* One step down from the shared .input__select size (--fs-14). The label above keeps its own
-   --fs-12 from .input__label. */
-.projects-filter__select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: var(--space-40);
-  font-size: var(--fs-12);
-}
-
-/* Centred by top/transform so it stays aligned at any control height, and inert so every click,
-   focus and keyboard interaction still reaches the select underneath. */
-.projects-filter__chevron {
-  position: absolute;
-  top: 50%;
-  right: var(--space-12);
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
 .kanban {
   display: grid;
   gap: var(--space-20);
