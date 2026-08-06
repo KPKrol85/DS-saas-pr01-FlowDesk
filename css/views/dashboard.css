@@ -176,6 +176,20 @@
   .dashboard-kpi__card {
     min-height: 8.5rem;
   }
+
+  /* The events card is the only full-width card in the dashboard grid, so a single column of
+     items leaves a wide empty gutter inside each one. Two equal tracks use that width. Source
+     order is untouched, so events keep reading left to right and then top to bottom, and an odd
+     count leaves the last item in the first column at its natural width. */
+  .dashboard-card--events .dashboard-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-12) var(--space-16);
+  }
+
+  /* The empty state is not an event item and would otherwise sit in half the available width. */
+  .dashboard-card--events .dashboard-list .empty-state {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 30rem) {
