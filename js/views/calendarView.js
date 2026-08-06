@@ -19,8 +19,18 @@ const getEventClientLabel = (event) => {
 
 const getEventProjectLabel = (event) => {
   if (event.project) return event.project.name;
-  return event.projectId ? 'Projekt niedostępny' : 'Bez projektu';
+  return event.projectId ? 'Zlecenie niedostępne' : 'Bez zlecenia';
 };
+
+// EVENT_TYPES are stored as stable English identifiers. normalizeEvent always resolves one of
+// them, so every event has a type and the badge never renders empty.
+const eventTypeLabels = {
+  General: 'Ogólne',
+  Meeting: 'Spotkanie',
+  Deadline: 'Termin'
+};
+
+const getEventTypeLabel = (event) => eventTypeLabels[event.type] || event.type;
 
 const eventModalContent = (event = {}, clients = [], projects = []) => `
   <form id="eventForm" class="form-grid">
@@ -37,10 +47,10 @@ const eventModalContent = (event = {}, clients = [], projects = []) => `
     </div>
     ${selectField({
       id: 'project',
-      label: 'Powiązany projekt',
+      label: 'Powiązane zlecenie',
       value: event.projectId,
       helper: projects.length ? '' : 'Brak aktywnych zleceń. Wydarzenie można zapisać bez relacji.',
-      options: projects.length ? projects.map((project) => ({ value: project.id, label: project.name })) : [{ value: '', label: 'Bez projektu' }]
+      options: projects.length ? projects.map((project) => ({ value: project.id, label: project.name })) : [{ value: '', label: 'Bez zlecenia' }]
     })}
   </form>
 `;
@@ -72,21 +82,23 @@ export const renderCalendarView = (container) => {
                     .map((event) => {
                       return `
                       <div class="list__item data-list__item calendar-list__item">
-                        <div class="data-list__main">
-                          <strong>${escapeHTML(event.title)}</strong>
-                          <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))} · ${escapeHTML(getEventClientLabel(event))}</div>
-                        </div>
-                        <div class="data-list__side">
-                          <span class="badge badge--info">${escapeHTML(getEventProjectLabel(event))}</span>
-                          <div class="data-actions">
-                            ${button({
-                              label: 'Usuń',
-                              variant: 'ghost',
-                              iconName: 'delete',
-                              className: 'btn--destructive',
-                              attributes: { 'data-action': 'delete', 'data-id': event.id }
-                            })}
+                        <div class="calendar-list__content">
+                          <div class="calendar-list__header">
+                            <strong class="calendar-list__title">${escapeHTML(event.title)}</strong>
+                            <span class="badge badge--info calendar-list__badge">${escapeHTML(getEventTypeLabel(event))}</span>
                           </div>
+                          <div class="input__helper data-list__meta calendar-list__meta">
+                            ${escapeHTML(formatDate(event.date))} · ${escapeHTML(getEventClientLabel(event))} · ${escapeHTML(getEventProjectLabel(event))}
+                          </div>
+                        </div>
+                        <div class="calendar-list__footer">
+                          ${button({
+                            label: 'Usuń',
+                            variant: 'ghost',
+                            iconName: 'delete',
+                            className: 'btn--destructive calendar-list__delete',
+                            attributes: { 'data-action': 'delete', 'data-id': event.id, 'aria-label': `Usuń wydarzenie: ${event.title}` }
+                          })}
                         </div>
                       </div>
                     `;

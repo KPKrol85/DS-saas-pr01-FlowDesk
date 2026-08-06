@@ -2,3 +2,91 @@
   display: grid;
   gap: var(--space-12);
 }
+
+/* The event card is a content block plus a quiet action footer.
+   The shared .list__item is a grid with `justify-content: space-between`, which leaves its
+   implicit column sized to its content instead of the card. Declaring one explicit `1fr` track
+   leaves no free space for `justify-content` to distribute, so the track now fills the card and
+   the footer can reach its right edge. The readable width limit moves to .calendar-list__content.
+   `1fr` on the second row lets the footer sit at the bottom when two side-by-side cards are
+   stretched to a common height. No fixed height is introduced. */
+.calendar-list__item {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  gap: var(--space-8);
+}
+
+/* Shrink-to-fit inside the full-width track, so the title, badge and metadata keep the same
+   constrained readable width they had before. */
+.calendar-list__content {
+  display: grid;
+  justify-self: start;
+  gap: var(--space-8);
+}
+
+.calendar-list__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.calendar-list__title {
+  min-width: 0;
+  font-size: var(--fs-14);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.calendar-list__badge {
+  flex: 0 0 auto;
+}
+
+.calendar-list__meta {
+  min-width: 0;
+}
+
+/* The destructive action sits below the content instead of beside it, so it no longer competes
+   with the title and badge for the same row. */
+.calendar-list__footer {
+  display: flex;
+  align-self: end;
+  justify-content: flex-end;
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border);
+}
+
+/* Smaller and lighter than a standard button, but it keeps the destructive colour, the visible
+   label and the shared hover, active and focus-visible treatment from .btn--destructive. */
+.calendar-list__delete {
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+}
+
+.calendar-list__delete .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+@media (min-width: 64rem) {
+  /* Full-width event cards leave a large unused area on wide screens. Two equal tracks use that
+     width; source order is untouched, so reading and tab order stay the same and an odd number
+     of events leaves the last card in the first column at its natural width. */
+  .calendar-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-12) var(--space-16);
+  }
+
+  .calendar-list__title {
+    font-size: var(--fs-16);
+  }
+
+  /* The empty state is not an event card and would otherwise sit in half the available width. */
+  .calendar-list .empty-state {
+    grid-column: 1 / -1;
+  }
+}
