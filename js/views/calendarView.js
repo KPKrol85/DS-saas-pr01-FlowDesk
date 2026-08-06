@@ -70,7 +70,7 @@ export const renderCalendarView = (container) => {
         ${pageHeader({ title: 'Kalendarz', description: 'Prosty widok nadchodzących wydarzeń powiązanych ze zleceniami.' })}
 
         <section class="card data-toolbar data-toolbar--single calendar-toolbar">
-          ${button({ label: 'Dodaj wydarzenie', id: 'addEvent', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
+          ${button({ label: 'Dodaj wydarzenie', id: 'addEvent', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action btn--compact' })}
         </section>
 
         <section class="card data-panel calendar-panel">

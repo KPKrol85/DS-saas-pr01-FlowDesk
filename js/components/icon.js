@@ -19,6 +19,7 @@ const icons = Object.freeze({
   delete:
     '<path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />',
   close: '<path d="M6 6l12 12"></path><path d="M18 6 6 18"></path>',
+  chevronDown: '<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />',
   search: '<circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path>',
   export: '<path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path>',
   reset: '<path d="M4 12a8 8 0 1 0 3-6.2"></path><path d="M4 4v6h6"></path>',
@@ -34,6 +35,7 @@ const icons = Object.freeze({
 const iconContracts = Object.freeze({
   dashboard: { viewBox: '0 0 640 640', filled: true },
   calendar: { strokeWidth: 1.5 },
+  chevronDown: { strokeWidth: 1.5 },
   clientAdd: { strokeWidth: 1.5 },
   clients: { strokeWidth: 1.5 },
   delete: { strokeWidth: 1.5 },

@@ -6,6 +6,7 @@ import { PROJECT_PRIORITIES, PROJECT_SERVICE_LEVELS, PROJECT_STATUSES } from '..
 import { button } from '../components/button.js';
 import { openConfirmDialog } from '../components/confirmDialog.js';
 import { emptyState } from '../components/emptyState.js';
+import { icon } from '../components/icon.js';
 import { inputField, selectField, setFieldError, textareaField } from '../components/formControls.js';
 import { openModal } from '../components/modal.js';
 import { pageHeader } from '../components/pageHeader.js';
@@ -153,31 +154,40 @@ export const renderProjectsView = (container) => {
       <main id="main" class="container">
         ${pageHeader({ title: 'Zlecenia', description: 'Śledź statusy zleceń i priorytety bez przeciążenia narzędziem.' })}
         <section class="card data-toolbar projects-toolbar">
-          <div class="form-grid form-grid--two data-toolbar__filters">
+          <div class="form-grid form-grid--two data-toolbar__filters projects-toolbar__filters">
             <div class="input">
               <label class="input__label" for="statusFilter">Status</label>
-              <select class="input__select" id="statusFilter">
-                <option value="all">Wszystkie</option>
-                ${statusColumns.map((status) => `<option value="${escapeAttribute(status)}" ${filterState.status === status ? 'selected' : ''}>${escapeHTML(getStatusLabel(status))}</option>`).join('')}
-              </select>
+              <div class="projects-filter__control">
+                <select class="input__select projects-filter__select" id="statusFilter">
+                  <option value="all">Wszystkie</option>
+                  ${statusColumns.map((status) => `<option value="${escapeAttribute(status)}" ${filterState.status === status ? 'selected' : ''}>${escapeHTML(getStatusLabel(status))}</option>`).join('')}
+                </select>
+                ${icon('chevronDown', { className: 'projects-filter__chevron', size: 16 })}
+              </div>
             </div>
             <div class="input">
               <label class="input__label" for="priorityFilter">Priorytet</label>
-              <select class="input__select" id="priorityFilter">
-                <option value="all">Wszystkie</option>
-                ${priorityOptions.map((priority) => `<option value="${escapeAttribute(priority)}" ${filterState.priority === priority ? 'selected' : ''}>${escapeHTML(priority)}</option>`).join('')}
-              </select>
+              <div class="projects-filter__control">
+                <select class="input__select projects-filter__select" id="priorityFilter">
+                  <option value="all">Wszystkie</option>
+                  ${priorityOptions.map((priority) => `<option value="${escapeAttribute(priority)}" ${filterState.priority === priority ? 'selected' : ''}>${escapeHTML(priority)}</option>`).join('')}
+                </select>
+                ${icon('chevronDown', { className: 'projects-filter__chevron', size: 16 })}
+              </div>
             </div>
             <div class="input">
               <label class="input__label" for="archiveFilter">Zakres</label>
-              <select class="input__select" id="archiveFilter">
-                <option value="active" ${filterState.archive === 'active' ? 'selected' : ''}>Aktywne</option>
-                <option value="archived" ${filterState.archive === 'archived' ? 'selected' : ''}>Archiwum</option>
-                <option value="all" ${filterState.archive === 'all' ? 'selected' : ''}>Wszystkie</option>
-              </select>
+              <div class="projects-filter__control">
+                <select class="input__select projects-filter__select" id="archiveFilter">
+                  <option value="active" ${filterState.archive === 'active' ? 'selected' : ''}>Aktywne</option>
+                  <option value="archived" ${filterState.archive === 'archived' ? 'selected' : ''}>Archiwum</option>
+                  <option value="all" ${filterState.archive === 'all' ? 'selected' : ''}>Wszystkie</option>
+                </select>
+                ${icon('chevronDown', { className: 'projects-filter__chevron', size: 16 })}
+              </div>
             </div>
           </div>
-          ${button({ label: 'Dodaj zlecenie', id: 'addProject', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action' })}
+          ${button({ label: 'Dodaj zlecenie', id: 'addProject', variant: 'primary', iconName: 'plus', className: 'data-toolbar__action btn--compact' })}
         </section>
 
         ${

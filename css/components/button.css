@@ -56,6 +56,14 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Size-only modifier for compact primary actions such as the toolbar "add" buttons. It carries no
+   colour or interaction state, so it composes with any variant. */
+.btn--compact {
+  padding: var(--space-8) var(--space-12);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+}
+
 .btn--icon {
   padding: var(--space-8);
   border-radius: var(--radius-md);
