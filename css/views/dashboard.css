@@ -25,27 +25,32 @@
 }
 
 .kpi__value {
-  font-size: var(--fs-28);
+  font-size: var(--fs-24);
   font-variant-numeric: tabular-nums;
   font-weight: var(--fw-bold);
   line-height: 1.1;
 }
 
 .kpi__label {
-  font-size: var(--fs-12);
-  color: var(--text-muted);
+  font-size: var(--fs-13);
+  color: var(--text);
   font-weight: var(--fw-semibold);
   line-height: 1.35;
 }
 
+/* The value is the primary information, the label names the metric and the hint qualifies it.
+   The card therefore holds the label and the hint together as one tight text block and keeps a
+   deliberate gap above it, so the number reads as a separate element instead of a fourth line. */
 .dashboard-kpi__card {
   align-content: stretch;
   grid-template-rows: 1fr auto auto;
+  row-gap: var(--space-2);
   min-height: 8rem;
 }
 
 .dashboard-kpi__card .kpi__value {
   align-self: end;
+  margin-bottom: var(--space-8);
 }
 
 .dashboard-kpi__hint {
@@ -99,9 +104,9 @@
 }
 
 .dashboard-list__action {
-  place-self: start end;
+  place-self: end end;
   padding: var(--space-8) var(--space-12);
-  font-size: var(--fs-13);
+  font-size: var(--fs-12);
   white-space: nowrap;
 }
 
@@ -188,8 +193,15 @@
     min-height: 0;
   }
 
+  .kpi__value {
+    font-size: var(--fs-20);
+  }
+
+  /* The compact card puts the value beside the label instead of above it, so the vertical
+     separation used on wider viewports is removed. */
   .dashboard-kpi__card .kpi__value {
     align-self: center;
+    margin-bottom: 0;
   }
 
   .dashboard-kpi__hint {

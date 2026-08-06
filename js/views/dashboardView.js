@@ -1,7 +1,6 @@
 import { store } from '../core/store.js';
 import { isProjectOverdue, selectDashboardMetrics, selectHighPriorityOpenProjects, selectNextActions, selectUpcomingEvents } from '../core/selectors.js';
 import { emptyState } from '../components/emptyState.js';
-import { icon } from '../components/icon.js';
 import { pageHeader } from '../components/pageHeader.js';
 import { formatDate, formatNumber } from '../utils/format.js';
 import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
@@ -14,7 +13,7 @@ const priorityLabels = {
 
 const formatPriorityLabel = (priority) => priorityLabels[priority] || priority;
 
-const overdueBadge = (isOverdue) => (isOverdue ? `<span class="badge badge--danger">${icon('alert', { size: 12 })}Po terminie</span>` : '');
+const overdueBadge = (isOverdue) => (isOverdue ? '<span class="badge badge--danger">Po terminie</span>' : '');
 
 const nextActionModifierClass = (isOverdue, isHighPriority) => {
   if (isOverdue) return ' dashboard-list__item--overdue';
@@ -38,23 +37,23 @@ export const renderDashboardView = (container) => {
         <div class="dashboard-kpi">
           <div class="card kpi dashboard-kpi__card dashboard-kpi__card--attention">
             <span class="kpi__value">${formatNumber(metrics.overdueProjectsCount)}</span>
-            <span class="kpi__label">Zaległe zlecenia</span>
-            <span class="dashboard-kpi__hint">Po terminie</span>
+            <span class="kpi__label">Zlecenia po terminie</span>
+            <span class="dashboard-kpi__hint">Otwarte, przekroczony termin</span>
           </div>
           <div class="card kpi dashboard-kpi__card dashboard-kpi__card--success">
             <span class="kpi__value">${formatNumber(metrics.completedProjectsCount)}</span>
             <span class="kpi__label">Ukończone zlecenia</span>
-            <span class="dashboard-kpi__hint">Łącznie</span>
+            <span class="dashboard-kpi__hint">Łącznie, bez archiwum</span>
           </div>
           <div class="card kpi dashboard-kpi__card dashboard-kpi__card--info">
             <span class="kpi__value">${formatNumber(metrics.throughputProjectsCount)}</span>
             <span class="kpi__label">Zamknięte w 30 dni</span>
-            <span class="dashboard-kpi__hint">Ostatni okres</span>
+            <span class="dashboard-kpi__hint">Bieżąca przepustowość</span>
           </div>
           <div class="card kpi dashboard-kpi__card dashboard-kpi__card--attention">
             <span class="kpi__value">${formatNumber(metrics.highPriorityOpenProjectsCount)}</span>
             <span class="kpi__label">Wysoki priorytet</span>
-            <span class="dashboard-kpi__hint">Otwarte</span>
+            <span class="dashboard-kpi__hint">Otwarte zlecenia</span>
           </div>
         </div>
 
