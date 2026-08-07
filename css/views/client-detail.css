@@ -1,8 +1,188 @@
 /*
- * Intentionally empty: every selector rendered by clientDetailView.js resolves to
- * shared modules — detail-grid/meta-grid/tag-row/timeline live in views/detail-shared.css
- * (also used by projectDetailView.js), and the rest (card, list, badge, data-*, page-header,
- * empty-state) are components. No client-detail-exclusive rule exists in the legacy
- * css/views.css to migrate here. Kept as an explicit module per the requested structure
- * and import order rather than silently omitted.
+ * Client-detail-only presentation. Everything structural is still shared:
+ * detail-grid/tag-row live in views/detail-shared.css (also used by projectDetailView.js) and
+ * card, list, badge, data-*, page-header and empty-state stay components. The rules below only
+ * refine hierarchy and density for this route, so the shared modules keep their current look in
+ * the Projects detail view.
  */
+
+/* Smaller than a standard header button so the record actions stop reading as primary actions.
+   Size comes from .btn--compact; colour, hover, active, focus-visible and the destructive
+   treatment of Archiwizuj still come from the .btn variants. */
+.client-detail__header-action {
+  gap: var(--space-6);
+}
+
+.client-detail__header-action .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* The compact size is a pointer-density choice. On touch layouts the record actions go back to a
+   ~40px target without giving up the icon/label pairing. */
+@media (max-width: 43.75rem) {
+  .client-detail__header-action {
+    padding: var(--space-10) var(--space-16);
+  }
+
+  .client-detail__header-action .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* Section headings are one tier below the page title instead of matching the card titles of every
+   other view at full size. */
+.client-detail__panel-title,
+.client-detail__profile .card__title {
+  font-size: var(--fs-16);
+}
+
+.client-detail__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+/* A label/value grid rather than four equally bold pairs. It replaces .meta-grid here only, so the
+   Projects detail view keeps its current metadata rendering. auto-fit lets the four pairs sit on
+   one row on wide screens and reflow without a new breakpoint. */
+.client-detail__meta {
+  display: grid;
+  gap: var(--space-12) var(--space-16);
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  margin: 0;
+}
+
+.client-detail__meta-item {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Distinguished by colour and size, not by weight — the value stays the stronger of the two. */
+.client-detail__meta-label {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  line-height: 1.3;
+}
+
+.client-detail__meta-value {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.client-detail__block {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.client-detail__subtitle {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Notes are supporting content, so they read below the metadata values instead of as body copy at
+   full strength. */
+.client-detail__notes {
+  color: var(--text-muted);
+  font-size: var(--fs-13);
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------------------
+   Contacts, related orders and events
+   --------------------------------------------------------------------------- */
+
+.client-detail__list {
+  gap: var(--space-8);
+}
+
+/* Same shared .list__item component, one density step tighter so a panel of four or five records
+   can be scanned at a glance. */
+.client-detail__item {
+  padding: var(--space-10) var(--space-12);
+}
+
+.client-detail__item-title {
+  font-size: var(--fs-14);
+  line-height: 1.35;
+}
+
+/* ---------------------------------------------------------------------------
+   Activity history
+   --------------------------------------------------------------------------- */
+
+/* A compact feed built from the fields selectClientActivityTimeline already returns: the entry
+   date, the collection it came from and its text. The shared .timeline is untouched because the
+   Projects detail view still renders its comments and history with it. */
+.client-activity {
+  display: grid;
+  gap: var(--space-16);
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--space-16);
+  border-left: 1px solid var(--border);
+}
+
+.client-activity__item {
+  display: grid;
+  gap: var(--space-2);
+  position: relative;
+}
+
+/* The marker is drawn on the rail rather than added to the markup, so it stays decorative and out
+   of the accessibility tree. */
+.client-activity__item::before {
+  content: '';
+  position: absolute;
+  top: 0.45rem;
+  left: calc(-1 * var(--space-16) - 3px);
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+}
+
+.client-activity__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-4) var(--space-8);
+  min-width: 0;
+}
+
+.client-activity__date {
+  color: var(--text);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+}
+
+/* Names the source collection of the entry. Quiet on purpose: it is context, not the event. */
+.client-activity__source {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  line-height: 1.3;
+}
+
+.client-activity__text {
+  color: var(--text-muted);
+  font-size: var(--fs-13);
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}

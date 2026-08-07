@@ -15,6 +15,14 @@ import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
 
 const isArchived = (record) => Boolean(record?.archivedAt);
 
+// CLIENT_STATUSES are the stored values, so the badge maps them onto the existing badge variants
+// instead of introducing a Clients-only colour set. Unknown values fall back to the neutral tone.
+const statusBadgeClass = (status) => {
+  if (status === 'Aktywny') return 'badge--success';
+  if (status === 'Zawieszony') return 'badge--warning';
+  return 'badge--info';
+};
+
 const getClientsEmptyState = (state, filters) => {
   const activeCount = state.clients.filter((client) => !isArchived(client)).length;
   const archivedCount = state.clients.filter(isArchived).length;
@@ -59,11 +67,18 @@ const getClientsEmptyState = (state, filters) => {
   };
 };
 
+const previewMetaItem = (label, value) => `
+  <div class="clients-preview__meta-item">
+    <dt class="clients-preview__meta-label">${escapeHTML(label)}</dt>
+    <dd class="clients-preview__meta-value">${escapeHTML(value)}</dd>
+  </div>
+`;
+
 const renderDetails = (client) => {
   if (!client) {
     return `
       <div class="side-panel data-panel clients-preview">
-        <h2>Podgląd klienta</h2>
+        <h2 class="clients-preview__name">Podgląd klienta</h2>
         ${emptyState({
           title: 'Brak klienta w podglądzie',
           description: 'Wybierz rekord z listy. Gdy filtry nic nie zwracają, podgląd pozostaje pusty.',
@@ -75,15 +90,28 @@ const renderDetails = (client) => {
 
   return `
     <div class="side-panel data-panel clients-preview">
-      <h2>${escapeHTML(client.name)}</h2>
-      <p class="input__helper">${escapeHTML(client.status)}</p>
-      <div class="list data-meta-list">
-        <div class="data-meta-list__item"><strong>Email:</strong> ${escapeHTML(client.email || 'Brak emaila')}</div>
-        <div class="data-meta-list__item"><strong>Telefon:</strong> ${escapeHTML(client.phone || 'Brak telefonu')}</div>
-        <div class="data-meta-list__item"><strong>Segment:</strong> ${escapeHTML(client.segment)}</div>
-        <div class="data-meta-list__item"><strong>Owner:</strong> ${escapeHTML(client.owner || 'Nieprzypisany')}</div>
-        <div class="data-meta-list__item"><strong>Notatki:</strong> ${escapeHTML(client.notes || 'Brak notatek')}</div>
-        <a class="btn btn--secondary" href="#/clients/${encodeURIComponent(client.id)}">Otwórz szczegóły</a>
+      <div class="clients-preview__header">
+        <p class="clients-preview__eyebrow">Podgląd klienta</p>
+        <h2 class="clients-preview__name">${escapeHTML(client.name)}</h2>
+        <div class="data-badges clients-preview__badges">
+          <span class="badge ${statusBadgeClass(client.status)}">${escapeHTML(client.status)}</span>
+          <span class="badge badge--info">${escapeHTML(client.segment)}</span>
+          ${client.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : ''}
+        </div>
+      </div>
+      <dl class="clients-preview__meta">
+        ${previewMetaItem('Email', client.email || 'Brak emaila')}
+        ${previewMetaItem('Telefon', client.phone || 'Brak telefonu')}
+        ${previewMetaItem('Owner', client.owner || 'Nieprzypisany')}
+      </dl>
+      <div class="clients-preview__notes">
+        <h3 class="clients-preview__section-title">Notatki</h3>
+        <p class="clients-preview__notes-text">${escapeHTML(client.notes || 'Brak notatek')}</p>
+      </div>
+      <div class="clients-preview__footer">
+        <a class="btn btn--ghost btn--compact clients-preview__action" href="#/clients/${encodeURIComponent(client.id)}">
+          ${icon('arrowRight')}<span>Otwórz szczegóły</span>
+        </a>
       </div>
     </div>
   `;
@@ -138,23 +166,36 @@ export const renderClientsView = (container) => {
       .map(
         (client) => `
         <tr class="data-row clients-table__row ${client.id === selectedId ? 'data-row--selected' : ''} ${client.archivedAt ? 'data-row--archived' : ''}" data-id="${escapeAttribute(client.id)}">
-          <td data-label="Klient"><strong class="data-cell__title">${escapeHTML(client.name)}</strong></td>
-          <td data-label="Email"><span class="data-cell__meta">${escapeHTML(client.email)}</span></td>
-          <td data-label="Status"><span class="data-cell__meta">${escapeHTML(client.status)}</span></td>
-          <td data-label="Segment"><span class="data-cell__meta">${escapeHTML(client.segment)}</span></td>
-          <td data-label="Owner/Archiwum" class="data-cell--badges">${client.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : `<span class="badge badge--info">${escapeHTML(client.owner || 'Brak')}</span>`}</td>
+          <td data-label="Klient"><span class="data-cell__title clients-table__name">${escapeHTML(client.name)}</span></td>
+          <td data-label="Email"><span class="data-cell__meta clients-table__meta">${escapeHTML(client.email)}</span></td>
+          <td data-label="Status"><span class="badge ${statusBadgeClass(client.status)}">${escapeHTML(client.status)}</span></td>
+          <td data-label="Segment"><span class="data-cell__meta clients-table__meta">${escapeHTML(client.segment)}</span></td>
+          <td data-label="Owner/Archiwum" class="data-cell--badges">
+            <div class="clients-table__owner">
+              <span class="data-cell__meta clients-table__meta">${escapeHTML(client.owner || 'Nieprzypisany')}</span>
+              ${client.archivedAt ? '<span class="badge badge--danger">Archiwum</span>' : ''}
+            </div>
+          </td>
           <td data-label="Akcje" class="data-table__actions-cell">
-            <div class="table__actions data-actions">
-              <a class="btn btn--ghost" href="#/clients/${encodeURIComponent(client.id)}">Szczegóły</a>
-              ${button({ label: 'Edytuj', variant: 'ghost', iconName: 'edit', attributes: { 'data-action': 'edit', 'data-id': client.id } })}
+            <div class="table__actions data-actions clients-table__actions">
+              <a class="btn btn--ghost btn--icon clients-table__action" href="#/clients/${encodeURIComponent(client.id)}" title="Szczegóły">${icon('arrowRight')}<span class="visually-hidden">Szczegóły</span></a>
+              ${button({ label: 'Edytuj', variant: 'ghost', iconName: 'edit', iconOnly: true, className: 'clients-table__action', attributes: { 'data-action': 'edit', 'data-id': client.id } })}
               ${
                 client.archivedAt
-                  ? button({ label: 'Przywróć', variant: 'ghost', iconName: 'reset', attributes: { 'data-action': 'restore', 'data-id': client.id } })
+                  ? button({
+                      label: 'Przywróć',
+                      variant: 'ghost',
+                      iconName: 'reset',
+                      iconOnly: true,
+                      className: 'clients-table__action',
+                      attributes: { 'data-action': 'restore', 'data-id': client.id }
+                    })
                   : button({
                       label: 'Archiwizuj',
                       variant: 'ghost',
                       iconName: 'delete',
-                      className: 'btn--destructive',
+                      iconOnly: true,
+                      className: 'btn--destructive clients-table__action',
                       attributes: { 'data-action': 'archive', 'data-id': client.id }
                     })
               }
@@ -208,12 +249,12 @@ export const renderClientsView = (container) => {
                 <table class="table data-table clients-table">
                   <thead>
                     <tr>
-                      <th>Klient</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Segment</th>
-                      <th>Owner/Archiwum</th>
-                      <th>Akcje</th>
+                      <th scope="col">Klient</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Segment</th>
+                      <th scope="col">Owner/Archiwum</th>
+                      <th scope="col" class="clients-table__actions-head">Akcje</th>
                     </tr>
                   </thead>
                   <tbody>

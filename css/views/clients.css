@@ -20,15 +20,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-.side-panel > h2,
-.side-panel > p {
-  margin: 0;
-}
-
 .side-panel > h2 {
-  font-size: var(--fs-18);
-  font-weight: var(--fw-semibold);
-  line-height: 1.3;
+  margin: 0;
 }
 
 @media (min-width: 64rem) {
@@ -45,4 +38,259 @@
   .clients-toolbar__filters {
     grid-template-columns: minmax(0, 16rem) minmax(0, 16rem) minmax(0, 16rem);
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Client list
+   --------------------------------------------------------------------------- */
+
+/* The shared .table header uses full-strength text, which made the column labels compete with the
+   client names underneath them. Here they stay uppercase and small but drop to the muted colour
+   and a lighter weight, so the row data is the first thing read. */
+.clients-table th {
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* .data-table is already table-layout: fixed, so without explicit widths every column got an equal
+   share and the actions wrapped unpredictably. These tracks give the name and email the room they
+   need and reserve a stable column for the actions, which is what made them look detached. */
+@media (min-width: 43.75rem) {
+  /* Rows are compact but not cramped: the vertical rhythm comes from one token rather than from
+     the taller default cell padding plus full-size buttons. */
+  .clients-table th,
+  .clients-table td {
+    padding: var(--space-10) var(--space-8);
+    vertical-align: middle;
+  }
+
+  .clients-table th:nth-child(1) {
+    width: 22%;
+  }
+
+  .clients-table th:nth-child(2) {
+    width: 25%;
+  }
+
+  .clients-table th:nth-child(3) {
+    width: 13%;
+  }
+
+  .clients-table th:nth-child(4) {
+    width: 12%;
+  }
+
+  .clients-table th:nth-child(5) {
+    width: 16%;
+  }
+
+  .clients-table th:nth-child(6) {
+    width: 12%;
+  }
+
+  /* The last divider duplicated the panel edge below it. */
+  .clients-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+/* The strongest piece of row information. It replaces the browser-bold <strong> with the same
+   semibold weight used for titles elsewhere. */
+.clients-table__name {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
+}
+
+/* Email, segment and owner read as one quieter tier below the name. */
+.clients-table__meta {
+  color: var(--text-muted);
+  font-size: var(--fs-13);
+  line-height: 1.4;
+}
+
+/* The owner is plain text again — as a filled badge it carried the same weight as the status and
+   made every row loud. The Archiwum badge stays, because it is an exception worth spotting. */
+.clients-table__owner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.clients-table__row {
+  cursor: pointer;
+}
+
+/* Selection is carried by the inset primary bar from .data-row--selected; the tint only makes the
+   selected row easy to find again after scrolling. */
+.clients-table .data-row--selected {
+  background: var(--state-hover);
+}
+
+.clients-table__actions-head {
+  text-align: right;
+}
+
+/* Predictable placement: the three actions always fit on one right-aligned row, so the column edge
+   stays straight from row to row and the row height stops depending on how the buttons wrap. */
+.clients-table__actions {
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+}
+
+/* Labelled actions cannot fit next to five data columns in this panel — three of them needed about
+   half of the table width and wrapped onto three lines. They use the shared icon-only button
+   contract instead: the label stays in the DOM as clipped text (so it is still the accessible name
+   and still readable by text queries) and `title` exposes it on hover.
+   The padding is scoped through the wrapper so it outranks the generic `.data-actions .btn` sizing,
+   and the background is cleared because .btn--icon would otherwise turn each quiet ghost action
+   into a filled chip. */
+.clients-table__actions .clients-table__action {
+  background: none;
+  padding: var(--space-8);
+}
+
+.clients-table__action .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Below the table breakpoint each row becomes a stacked card, which has the width the table column
+   never had. The actions go back to icon + visible label there: the clipped label simply returns to
+   the flow, so the accessible name, the handlers and the markup are identical in both layouts. */
+@media (max-width: 43.75rem) {
+  .clients-table__actions {
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+
+  /* Roomier than the pointer-only table layout, so the tap target stays around 40px. */
+  .clients-table__actions .clients-table__action {
+    gap: var(--space-6);
+    padding: var(--space-10) var(--space-12);
+  }
+
+  .clients-table__action .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .clients-table__action .visually-hidden {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Selected-client summary panel
+   --------------------------------------------------------------------------- */
+
+.clients-preview {
+  gap: var(--space-16);
+}
+
+.clients-preview__header {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.clients-preview__eyebrow {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Still the loudest element in the panel, but one step below the previous heading size so it no
+   longer rivals the page title. */
+.clients-preview__name {
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.clients-preview__badges {
+  gap: var(--space-6);
+}
+
+/* A label/value pair grid instead of five equally weighted sentences. */
+.clients-preview__meta {
+  display: grid;
+  gap: var(--space-10);
+  margin: 0;
+  padding-top: var(--space-12);
+  border-top: 1px solid var(--border);
+}
+
+.clients-preview__meta-item {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.clients-preview__meta-label {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  line-height: 1.3;
+}
+
+.clients-preview__meta-value {
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.clients-preview__notes {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.clients-preview__section-title {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.clients-preview__notes-text {
+  color: var(--text-muted);
+  font-size: var(--fs-13);
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The action moves out of the metadata list and onto its own bottom row, separated by the same
+   tokenized divider used by the Projects card footer. */
+.clients-preview__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-12);
+  border-top: 1px solid var(--border);
+}
+
+/* Discreet on purpose: it must not read as a primary create action. Size comes from .btn--compact,
+   colour and interaction states from .btn--ghost. */
+.clients-preview__action {
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-8);
+}
+
+.clients-preview__action .icon {
+  width: 1rem;
+  height: 1rem;
 }

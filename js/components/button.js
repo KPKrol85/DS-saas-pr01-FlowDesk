@@ -13,11 +13,13 @@ const renderAttributes = (attributes = {}) =>
 export const button = ({ label, id = '', type = 'button', variant = 'secondary', iconName = '', iconOnly = false, className = '', attributes = {} }) => {
   const idAttribute = id ? ` id="${escapeAttribute(id)}"` : '';
   const titleAttribute = iconOnly && label ? ` title="${escapeAttribute(label)}"` : '';
-  const ariaLabel = iconOnly && label ? { 'aria-label': label, ...attributes } : attributes;
-  const extraAttributes = renderAttributes(ariaLabel);
+  const extraAttributes = renderAttributes(attributes);
   const classes = `btn btn--${escapeAttribute(variant)} ${iconOnly ? 'btn--icon' : ''} ${escapeAttribute(className)}`.trim();
   const iconMarkup = iconName ? icon(iconName) : '';
-  const labelMarkup = iconOnly ? '' : `<span>${escapeHTML(label)}</span>`;
+  // An icon-only button keeps its label as real text, clipped by the shared .visually-hidden
+  // utility, rather than as aria-label. The accessible name then comes from content, and the
+  // title attribute still exposes it to sighted users on hover.
+  const labelMarkup = iconOnly ? `<span class="visually-hidden">${escapeHTML(label)}</span>` : `<span>${escapeHTML(label)}</span>`;
 
   return `<button class="${classes}" type="${escapeAttribute(type)}"${idAttribute}${titleAttribute}${extraAttributes ? ` ${extraAttributes}` : ''}>${iconMarkup}${labelMarkup}</button>`;
 };
