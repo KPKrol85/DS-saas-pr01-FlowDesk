@@ -53,7 +53,7 @@
   border: 1px solid var(--border);
   background: var(--bg);
   display: grid;
-  gap: var(--space-8);
+  gap: var(--space-6);
   line-height: 1.4;
   min-width: 0;
   font-size: var(--fs-14);
@@ -67,18 +67,27 @@
   min-width: 0;
 }
 
-.kanban__card strong {
+/* The strongest information in the card, at the size and weight the Clients list gives a record
+   name. It replaces a browser-bold <strong> nested inside the link. */
+.kanban__card-title {
+  font-size: var(--fs-14);
   font-weight: var(--fw-semibold);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
-/* Three readable levels instead of two. The client and the due date were both plain
-   .input__helper, so they carried identical weight; the due date now reads as the actionable
-   value while the client stays secondary. */
+/* Three readable levels instead of two. The client and the due date share the .data-meta size and
+   sit directly under the title as one metadata block; the due date keeps full-strength text and a
+   medium weight because it is the actionable value of the card. */
 .kanban__card-due {
   color: var(--text);
   font-weight: var(--fw-medium);
+}
+
+/* The badge row is state, not metadata, so it is separated from the two metadata lines above it
+   rather than sitting flush against them. */
+.kanban__card-badges {
+  margin-top: var(--space-2);
 }
 
 /* The action area spans the full card width and is separated from the content by the same
@@ -94,18 +103,19 @@
   border-top: 1px solid var(--border);
 }
 
-/* Compact and quiet, but the shared hover, active, focus-visible and destructive treatments
-   from .btn, .btn--ghost and .btn--destructive are untouched. */
+/* Size, weight and icon dimensions come from the shared .btn--micro contract; the hover, active,
+   focus-visible and destructive treatments still come from .btn, .btn--ghost and
+   .btn--destructive. Nothing about the action is declared twice here. */
 .kanban__card-action {
-  gap: var(--space-6);
-  padding: var(--space-4) var(--space-8);
-  font-size: var(--fs-12);
-  font-weight: var(--fw-medium);
+  flex: 0 0 auto;
 }
 
-.kanban__card-action .icon {
-  width: 1rem;
-  height: 1rem;
+/* An empty column is a deliberate state, not a missing card: the copy is centred in the space a
+   card would occupy so the four columns keep a common rhythm. */
+.kanban__column-empty {
+  margin: 0;
+  padding: var(--space-16) var(--space-12);
+  text-align: center;
 }
 
 @media (min-width: 64rem) {

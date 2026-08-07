@@ -96,6 +96,18 @@
   overflow-wrap: anywhere;
 }
 
+/* The quiet secondary tier of a data surface: client names, dates, relations and column hints.
+   Views used to reach for .input__helper to obtain muted small text, which coupled data display to
+   the form contract and pinned every piece of metadata one step below the size the Clients list
+   reads at. This owns the typography only — placement stays with the consuming view. */
+.data-meta {
+  color: var(--text-muted);
+  font-size: var(--fs-13);
+  line-height: 1.45;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .data-actions {
   align-items: center;
   display: flex;

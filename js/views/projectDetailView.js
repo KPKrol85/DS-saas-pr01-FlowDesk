@@ -2,34 +2,38 @@ import { qs } from '../core/dom.js';
 import { getActionFieldError } from '../core/actions.js';
 import { selectProjectDetail } from '../core/selectors.js';
 import { store } from '../core/store.js';
+import { projectPriorityBadgeClass, projectStatusBadgeClass } from '../components/badge.js';
 import { button } from '../components/button.js';
 import { openConfirmDialog } from '../components/confirmDialog.js';
 import { emptyState } from '../components/emptyState.js';
 import { textareaField, setFieldError } from '../components/formControls.js';
+import { icon } from '../components/icon.js';
 import { pageHeader } from '../components/pageHeader.js';
 import { showToast } from '../components/toast.js';
-import { formatDate, formatNumber } from '../utils/format.js';
+import { formatDate, formatNumber, formatProjectStatus } from '../utils/format.js';
 import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
-
-const badgeClass = (value) => {
-  if (value === 'High' || value === 'Review' || value === 'Critical') return 'badge--warning';
-  if (value === 'Done') return 'badge--success';
-  return 'badge--info';
-};
 
 const getProjectClientLabel = (project, client) => {
   if (client) return client.name;
   return project.clientId ? 'Klient niedostępny' : 'Bez klienta';
 };
 
+// The same label/value pair the client detail route renders, so both records read alike.
+const metaItem = (label, value, hint = '') => `
+  <div class="meta-grid__item">
+    <dt class="meta-grid__label">${escapeHTML(label)}</dt>
+    <dd class="meta-grid__value">${value}${hint ? `<span class="meta-grid__hint">${escapeHTML(hint)}</span>` : ''}</dd>
+  </div>
+`;
+
 const renderTasks = (project) =>
   project.tasks.length
     ? project.tasks
         .map(
           (task) => `
-            <label class="list__item data-list__item data-list__item--check">
-              <span class="data-list__main">${escapeHTML(task.title)}</span>
-              <input type="checkbox" data-task-id="${escapeAttribute(task.id)}" ${task.done ? 'checked' : ''} />
+            <label class="list__item data-list__item data-list__item--check detail-item">
+              <span class="data-list__main detail-item-title">${escapeHTML(task.title)}</span>
+              <input class="project-detail__check" type="checkbox" data-task-id="${escapeAttribute(task.id)}" ${task.done ? 'checked' : ''} />
             </label>
           `
         )
@@ -83,10 +87,10 @@ const renderEvents = (events = []) =>
     ? events
         .map(
           (event) => `
-            <div class="list__item data-list__item">
+            <div class="list__item data-list__item detail-item">
               <div class="data-list__main">
-                <strong>${escapeHTML(event.title)}</strong>
-                <div class="input__helper data-list__meta">${escapeHTML(formatDate(event.date))}</div>
+                <strong class="detail-item-title">${escapeHTML(event.title)}</strong>
+                <div class="data-meta data-list__meta">${escapeHTML(formatDate(event.date))}</div>
               </div>
             </div>
           `
@@ -107,7 +111,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
         ${pageHeader({
           title: 'Zlecenie nie znalezione',
           description: 'Rekord nie istnieje albo został usunięty z danych demo.',
-          actions: '<a class="btn btn--secondary" href="#/projects">Wróć do zleceń</a>'
+          actions: `<a class="btn btn--secondary btn--compact detail-header-action" href="#/projects">${icon('arrowLeft')}<span>Wróć do zleceń</span></a>`
         })}
         ${emptyState({
           title: 'Brak rekordu zlecenia',
@@ -125,53 +129,63 @@ export const renderProjectDetailView = (container, { id } = {}) => {
   container.innerHTML = `
     <main id="main" class="container">
       ${pageHeader({
+        eyebrow: 'Zlecenie',
         title: project.name,
-        description: `${project.status} · ${project.priority} · ${getProjectClientLabel(project, client)}`,
+        description: `${formatProjectStatus(project.status)} · ${project.priority} · ${getProjectClientLabel(project, client)}`,
         actions: `
-          <a class="btn btn--secondary" href="#/projects">Wróć</a>
-          ${archived ? button({ label: 'Przywróć', id: 'restoreProject', variant: 'secondary', iconName: 'reset' }) : button({ label: 'Archiwizuj', id: 'archiveProject', variant: 'danger', iconName: 'delete' })}
+          <a class="btn btn--secondary btn--compact detail-header-action" href="#/projects">${icon('arrowLeft')}<span>Wróć</span></a>
+          ${
+            archived
+              ? button({ label: 'Przywróć', id: 'restoreProject', variant: 'secondary', iconName: 'reset', className: 'btn--compact detail-header-action' })
+              : button({ label: 'Archiwizuj', id: 'archiveProject', variant: 'danger', iconName: 'delete', className: 'btn--compact detail-header-action' })
+          }
         `
       })}
 
       <section class="detail-grid">
         <div class="card detail-main data-panel">
-          <h2 class="card__title">Podsumowanie zlecenia</h2>
-          <div class="meta-grid">
-            <div>
-              <span class="input__helper">Klient</span>
-              <strong>${client ? `<a href="#/clients/${encodeURIComponent(client.id)}">${escapeHTML(client.name)}</a>` : escapeHTML(getProjectClientLabel(project, client))}</strong>
-              ${!client && project.clientId ? '<span class="input__helper">Powiązany klient jest niedostępny w lokalnych danych demo.</span>' : ''}
+          <div class="project-detail__section-head">
+            <h2 class="card__title">Podsumowanie zlecenia</h2>
+            <div class="tag-row data-tags">
+              <span class="badge ${projectStatusBadgeClass(project.status)}">${escapeHTML(formatProjectStatus(project.status))}</span>
+              <span class="badge ${projectPriorityBadgeClass(project.priority)}">${escapeHTML(project.priority)}</span>
+              ${archived ? '<span class="badge badge--danger">Archiwum</span>' : ''}
             </div>
-            <div><span class="input__helper">Termin</span><strong>${escapeHTML(formatDate(project.dueDate))}</strong></div>
-            <div><span class="input__helper">SLA</span><strong>${escapeHTML(project.sla.serviceLevel)}</strong></div>
-            <div><span class="input__helper">Reakcja do</span><strong>${escapeHTML(formatDate(project.sla.responseDueDate))}</strong></div>
           </div>
-          <div class="tag-row data-tags">
-            <span class="badge ${badgeClass(project.status)}">${escapeHTML(project.status)}</span>
-            <span class="badge ${badgeClass(project.priority)}">${escapeHTML(project.priority)}</span>
-            ${archived ? '<span class="badge badge--danger">Archiwum</span>' : ''}
+          <dl class="meta-grid">
+            ${metaItem(
+              'Klient',
+              client ? `<a href="#/clients/${encodeURIComponent(client.id)}">${escapeHTML(client.name)}</a>` : escapeHTML(getProjectClientLabel(project, client)),
+              !client && project.clientId ? 'Powiązany klient jest niedostępny w lokalnych danych demo.' : ''
+            )}
+            ${metaItem('Termin', escapeHTML(formatDate(project.dueDate)))}
+            ${metaItem('SLA', escapeHTML(project.sla.serviceLevel))}
+            ${metaItem('Reakcja do', escapeHTML(formatDate(project.sla.responseDueDate)))}
+          </dl>
+          <div class="detail-block">
+            <h3 class="detail-subtitle">Notatki</h3>
+            <p class="detail-notes">${escapeHTML(project.notes || 'Brak notatek.')}</p>
           </div>
-          <p>${escapeHTML(project.notes || 'Brak notatek.')}</p>
           ${archived ? `<p class="input__helper data-archive-note">Archiwum od: ${escapeHTML(formatDate(project.archivedAt))}. Rekord pozostaje dostępny do przeglądu i można go przywrócić.</p>` : ''}
         </div>
 
         <div class="card data-panel">
           <h2 class="card__title">Wycena</h2>
-          <div class="meta-grid">
-            <div><span class="input__helper">Godziny</span><strong>${formatNumber(project.estimate.hours)}</strong></div>
-            <div><span class="input__helper">Wartość</span><strong>${formatNumber(project.estimate.value)} ${escapeHTML(project.estimate.currency)}</strong></div>
-            <div><span class="input__helper">Ukończono</span><strong>${escapeHTML(formatDate(project.completedAt))}</strong></div>
-          </div>
+          <dl class="meta-grid">
+            ${metaItem('Godziny', `<span class="project-detail__figure">${formatNumber(project.estimate.hours)}</span>`)}
+            ${metaItem('Wartość', `<span class="project-detail__figure">${formatNumber(project.estimate.value)}</span> ${escapeHTML(project.estimate.currency)}`)}
+            ${metaItem('Ukończono', escapeHTML(formatDate(project.completedAt)))}
+          </dl>
         </div>
 
         <div class="card data-panel">
           <h2 class="card__title">Checklist</h2>
-          <div class="list data-list">${renderTasks(project)}</div>
+          <div class="list data-list detail-list">${renderTasks(project)}</div>
         </div>
 
         <div class="card data-panel">
           <h2 class="card__title">Wydarzenia</h2>
-          <div class="list data-list">${renderEvents(events)}</div>
+          <div class="list data-list detail-list">${renderEvents(events)}</div>
         </div>
 
         <div class="card data-panel">
@@ -179,7 +193,7 @@ export const renderProjectDetailView = (container, { id } = {}) => {
           <div class="timeline">${renderComments(project.comments)}</div>
           <form id="commentForm" class="form-grid comment-form">
             ${textareaField({ id: 'comment', label: 'Nowy komentarz', rows: 3, placeholder: 'Dodaj notatkę operacyjną' })}
-            ${button({ label: 'Dodaj komentarz', type: 'submit', variant: 'secondary', iconName: 'plus' })}
+            ${button({ label: 'Dodaj komentarz', type: 'submit', variant: 'secondary', iconName: 'plus', className: 'btn--compact comment-form__submit' })}
           </form>
         </div>
 

@@ -18,8 +18,12 @@
   justify-self: start;
 }
 
+/* One tier below the page title. At --fs-18 a card heading sat almost level with the h1 above it,
+   so every panel on a view read as a second page title. The Clients detail route already pinned
+   its panel headings here through a local override; the size now belongs to the component and the
+   override is gone. */
 .card__title {
-  font-size: var(--fs-18);
+  font-size: var(--fs-16);
   font-weight: var(--fw-semibold);
   line-height: 1.3;
   margin: 0;

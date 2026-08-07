@@ -9,7 +9,7 @@ import { inputField, selectField, setFieldError } from '../components/formContro
 import { openModal } from '../components/modal.js';
 import { pageHeader } from '../components/pageHeader.js';
 import { showToast } from '../components/toast.js';
-import { formatDate } from '../utils/format.js';
+import { formatDate, formatEventType } from '../utils/format.js';
 import { escapeHTML } from '../utils/sanitize.js';
 
 const getEventClientLabel = (event) => {
@@ -21,16 +21,6 @@ const getEventProjectLabel = (event) => {
   if (event.project) return event.project.name;
   return event.projectId ? 'Zlecenie niedostępne' : 'Bez zlecenia';
 };
-
-// EVENT_TYPES are stored as stable English identifiers. normalizeEvent always resolves one of
-// them, so every event has a type and the badge never renders empty.
-const eventTypeLabels = {
-  General: 'Ogólne',
-  Meeting: 'Spotkanie',
-  Deadline: 'Termin'
-};
-
-const getEventTypeLabel = (event) => eventTypeLabels[event.type] || event.type;
 
 const eventModalContent = (event = {}, clients = [], projects = []) => `
   <form id="eventForm" class="form-grid">
@@ -85,10 +75,10 @@ export const renderCalendarView = (container) => {
                         <div class="calendar-list__content">
                           <div class="calendar-list__header">
                             <strong class="calendar-list__title">${escapeHTML(event.title)}</strong>
-                            <span class="badge badge--info calendar-list__badge">${escapeHTML(getEventTypeLabel(event))}</span>
+                            <span class="badge badge--info calendar-list__badge">${escapeHTML(formatEventType(event.type))}</span>
                           </div>
-                          <div class="input__helper data-list__meta calendar-list__meta">
-                            ${escapeHTML(formatDate(event.date))} · ${escapeHTML(getEventClientLabel(event))} · ${escapeHTML(getEventProjectLabel(event))}
+                          <div class="data-meta calendar-list__meta">
+                            <span class="calendar-list__date">${escapeHTML(formatDate(event.date))}</span> · ${escapeHTML(getEventClientLabel(event))} · ${escapeHTML(getEventProjectLabel(event))}
                           </div>
                         </div>
                         <div class="calendar-list__footer">
@@ -96,7 +86,7 @@ export const renderCalendarView = (container) => {
                             label: 'Usuń',
                             variant: 'ghost',
                             iconName: 'delete',
-                            className: 'btn--destructive calendar-list__delete',
+                            className: 'btn--destructive btn--micro calendar-list__delete',
                             attributes: { 'data-action': 'delete', 'data-id': event.id, 'aria-label': `Usuń wydarzenie: ${event.title}` }
                           })}
                         </div>

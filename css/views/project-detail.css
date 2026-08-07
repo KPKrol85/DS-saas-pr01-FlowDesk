@@ -1,3 +1,38 @@
+/*
+ * Service-order-detail-only presentation. The header actions, the metadata grid, the notes block,
+ * the related-record lists and the timeline all come from views/detail-shared.css, which the
+ * client detail route uses as well, so the two records read as one product.
+ */
+
+/* The panel heading and the record state belong to the same line: the badges qualify the summary
+   below them rather than starting a second content row. Mirrors the client profile head. */
+.project-detail__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+/* Operational figures stay aligned across the three estimate values. */
+.project-detail__figure {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The checklist control is the interactive part of the row, so it keeps a comfortable target
+   without the row growing around it. accent-color resolves per theme from the shared token. */
+.project-detail__check {
+  accent-color: var(--primary);
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
 .comment-form {
   margin-top: 0;
+}
+
+/* A form action, not a page action: it sits at its natural width instead of stretching across the
+   grid column it lives in. */
+.comment-form__submit {
+  justify-self: start;
 }
