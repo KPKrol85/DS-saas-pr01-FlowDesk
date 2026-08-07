@@ -14,6 +14,7 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   gap: var(--space-8);
+  padding: var(--space-12);
 }
 
 /* Shrink-to-fit inside the full-width track, so the title, badge and metadata keep the same
@@ -21,7 +22,7 @@
 .calendar-list__content {
   display: grid;
   justify-self: start;
-  gap: var(--space-8);
+  gap: var(--space-6);
 }
 
 .calendar-list__header {
@@ -33,9 +34,12 @@
   min-width: 0;
 }
 
+/* The strongest information in the card, at the record-title size the Clients list and the
+   Projects card use. */
 .calendar-list__title {
   min-width: 0;
   font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
@@ -44,8 +48,16 @@
   flex: 0 0 auto;
 }
 
+/* Date, client and order are one quiet line below the title. Size and colour come from
+   .data-meta; only the date is lifted back to full-strength text, because it is the value the row
+   is actually scanned for — the same distinction the Projects card makes for its due date. */
 .calendar-list__meta {
   min-width: 0;
+}
+
+.calendar-list__date {
+  color: var(--text);
+  font-weight: var(--fw-medium);
 }
 
 /* The destructive action sits below the content instead of beside it, so it no longer competes
@@ -58,18 +70,11 @@
   border-top: 1px solid var(--border);
 }
 
-/* Smaller and lighter than a standard button, but it keeps the destructive colour, the visible
-   label and the shared hover, active and focus-visible treatment from .btn--destructive. */
+/* Size, weight and icon dimensions come from the shared .btn--micro contract; the destructive
+   colour, the visible label and the hover, active and focus-visible treatment still come from
+   .btn--destructive. */
 .calendar-list__delete {
-  gap: var(--space-6);
-  padding: var(--space-4) var(--space-8);
-  font-size: var(--fs-12);
-  font-weight: var(--fw-medium);
-}
-
-.calendar-list__delete .icon {
-  width: 1rem;
-  height: 1rem;
+  flex: 0 0 auto;
 }
 
 @media (min-width: 64rem) {
@@ -79,10 +84,6 @@
   .calendar-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-12) var(--space-16);
-  }
-
-  .calendar-list__title {
-    font-size: var(--fs-16);
   }
 
   /* The empty state is not an event card and would otherwise sit in half the available width. */

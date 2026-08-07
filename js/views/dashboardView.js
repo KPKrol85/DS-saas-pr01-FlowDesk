@@ -1,17 +1,11 @@
 import { store } from '../core/store.js';
 import { isProjectOverdue, selectDashboardMetrics, selectHighPriorityOpenProjects, selectNextActions, selectUpcomingEvents } from '../core/selectors.js';
+import { projectStatusBadgeClass } from '../components/badge.js';
 import { emptyState } from '../components/emptyState.js';
+import { icon } from '../components/icon.js';
 import { pageHeader } from '../components/pageHeader.js';
-import { formatDate, formatNumber } from '../utils/format.js';
+import { formatDate, formatEventType, formatNumber, formatProjectStatus } from '../utils/format.js';
 import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
-
-const priorityLabels = {
-  High: 'Wysoki priorytet',
-  Medium: 'Średni priorytet',
-  Low: 'Niski priorytet'
-};
-
-const formatPriorityLabel = (priority) => priorityLabels[priority] || priority;
 
 const overdueBadge = (isOverdue) => (isOverdue ? '<span class="badge badge--danger">Po terminie</span>' : '');
 
@@ -19,6 +13,34 @@ const nextActionModifierClass = (isOverdue, isHighPriority) => {
   if (isOverdue) return ' dashboard-list__item--overdue';
   if (isHighPriority) return ' dashboard-list__item--attention';
   return '';
+};
+
+// Both order lists show the same record with the same hierarchy — title, due date, state — and the
+// same quiet navigation action, so they render from one template. Only the left accent differs:
+// inside "Zlecenia wysokiego priorytetu" every row is high priority, so the amber bar would mark
+// nothing and is suppressed there. Neither the href nor the click behaviour changes.
+const projectListItem = (item, referenceDate, { highlightPriority = false } = {}) => {
+  const overdue = isProjectOverdue(item, referenceDate);
+  const highPriority = highlightPriority && !overdue && item.priority === 'High';
+  const href = `#/projects/${encodeURIComponent(item.id)}`;
+
+  return `
+    <div class="list__item dashboard-list__item dashboard-list__item--with-action${nextActionModifierClass(overdue, highPriority)}">
+      <div class="dashboard-list__main">
+        <a class="dashboard-list__link" href="${href}"><span class="dashboard-list__title">${escapeHTML(item.name)}</span></a>
+        <div class="dashboard-list__footer">
+          <span class="data-meta dashboard-list__meta">Termin: ${escapeHTML(formatDate(item.dueDate))}</span>
+          <div class="dashboard-list__badge-group">
+            ${overdueBadge(overdue)}
+            <span class="badge ${projectStatusBadgeClass(item.status)}">${escapeHTML(formatProjectStatus(item.status))}</span>
+          </div>
+        </div>
+      </div>
+      <a class="btn btn--ghost btn--micro dashboard-list__action" href="${href}" aria-label="Szczegóły zlecenia: ${escapeAttribute(item.name)}">
+        ${icon('arrowRight')}<span>Szczegóły</span>
+      </a>
+    </div>
+  `;
 };
 
 export const renderDashboardView = (container) => {
@@ -63,29 +85,7 @@ export const renderDashboardView = (container) => {
             <div class="list dashboard-list">
               ${
                 nextActions.length
-                  ? nextActions
-                      .map((item) => {
-                        const overdue = isProjectOverdue(item, referenceDate);
-                        const highPriority = !overdue && item.priority === 'High';
-                        const href = `#/projects/${encodeURIComponent(item.id)}`;
-
-                        return `
-                    <div class="list__item dashboard-list__item dashboard-list__item--with-action${nextActionModifierClass(overdue, highPriority)}">
-                      <div class="dashboard-list__main">
-                        <a class="dashboard-list__link" href="${href}"><strong>${escapeHTML(item.name)}</strong></a>
-                        <div class="dashboard-list__footer">
-                          <span class="input__helper dashboard-list__meta">Termin: ${escapeHTML(formatDate(item.dueDate))}</span>
-                          <div class="dashboard-list__badge-group">
-                            ${overdueBadge(overdue)}
-                            <span class="badge badge--info">${escapeHTML(item.status)}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <a class="btn btn--ghost dashboard-list__action" href="${href}" aria-label="Szczegóły zlecenia: ${escapeAttribute(item.name)}">Szczegóły</a>
-                    </div>
-                  `;
-                      })
-                      .join('')
+                  ? nextActions.map((item) => projectListItem(item, referenceDate, { highlightPriority: true })).join('')
                   : emptyState({
                       title: 'Brak zaplanowanych działań',
                       description: 'Nie ma aktywnych zleceń z terminem do pokazania. Dodaj zlecenie albo przywróć rekord z archiwum.',
@@ -100,22 +100,7 @@ export const renderDashboardView = (container) => {
             <div class="list dashboard-list">
               ${
                 highPriorityProjects.length
-                  ? highPriorityProjects
-                      .map(
-                        (item) => `
-                    <div class="list__item dashboard-list__item">
-                      <div class="dashboard-list__main">
-                        <a class="dashboard-list__link" href="#/projects/${encodeURIComponent(item.id)}"><strong>${escapeHTML(item.name)}</strong></a>
-                        <div class="input__helper dashboard-list__meta">Termin: ${escapeHTML(formatDate(item.dueDate))}</div>
-                      </div>
-                      <div class="dashboard-list__badges">
-                        ${overdueBadge(isProjectOverdue(item, referenceDate))}
-                        <span class="badge badge--warning">${escapeHTML(formatPriorityLabel(item.priority))}</span>
-                      </div>
-                    </div>
-                  `
-                      )
-                      .join('')
+                  ? highPriorityProjects.map((item) => projectListItem(item, referenceDate)).join('')
                   : emptyState({
                       title: 'Brak pilnych zleceń',
                       description: 'Nie ma otwartych zleceń wysokiego priorytetu. To poprawny stan, gdy pilna praca została zamknięta albo zarchiwizowana.',
@@ -136,11 +121,11 @@ export const renderDashboardView = (container) => {
                       (event) => `
                     <div class="list__item dashboard-list__item">
                       <div class="dashboard-list__main">
-                        <strong>${escapeHTML(event.title)}</strong>
-                        <div class="input__helper dashboard-list__meta">${escapeHTML(formatDate(event.date))}</div>
+                        <span class="dashboard-list__title">${escapeHTML(event.title)}</span>
+                        <span class="data-meta dashboard-list__meta">${escapeHTML(formatDate(event.date))}</span>
                       </div>
                       <div class="dashboard-list__badges">
-                        <span class="badge badge--info">Nadchodzące</span>
+                        <span class="badge badge--info">${escapeHTML(formatEventType(event.type))}</span>
                       </div>
                     </div>
                   `

@@ -3,18 +3,144 @@
   gap: var(--space-20);
 }
 
-@media (min-width: 64rem) {
-  .settings-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* A configuration section is a heading plus a stack of rows, so the card gap is one step tighter
+   than the default: the rows carry their own rhythm through their dividers. */
+.settings-section {
+  align-content: start;
+  gap: var(--space-16);
+}
+
+.settings-section__head {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.settings-options {
+  display: grid;
+  margin: 0;
+}
+
+/* One option per row: what it is on the left, what it does to it on the right. The divider between
+   rows replaces the card-per-setting layout the view used before, which turned four unrelated
+   controls into four competing panels. */
+.settings-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-8) var(--space-16);
+  padding: var(--space-12) 0;
+  border-top: 1px solid var(--border);
+}
+
+/* The section heading already separates the first row, and the card edge closes the last one. */
+.settings-option:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.settings-option:last-child {
+  padding-bottom: 0;
+}
+
+.settings-option__text {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Scannable without being loud: the option name is the strongest text in the row, but it is a
+   label, not a record title, so it stops at medium weight. */
+.settings-option__name {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Size and colour come from .input__helper, which is what this text is — the explanation of a
+   control. Only the paragraph margin is removed. */
+.settings-option__desc {
+  margin: 0;
+}
+
+.settings-option__value {
+  font-size: var(--fs-14);
+  line-height: 1.4;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+/* Native checkbox, given a comfortable target and the primary accent, which resolves per theme
+   from the shared token. */
+.settings-option__control {
+  accent-color: var(--primary);
+  justify-self: end;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.settings-option__action {
+  justify-self: end;
+}
+
+/* Import is a form, not a one-click row, so it gets its own block under the row list rather than
+   being squeezed into a trailing column. */
+.settings-subsection {
+  display: grid;
+  gap: var(--space-12);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--border);
+}
+
+.settings-subsection__title {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.settings-import-form {
+  gap: var(--space-12);
 }
 
 .settings-import-form .input__textarea {
   max-height: 18rem;
 }
 
+.settings-import-form__submit {
+  justify-self: start;
+}
+
+/* The destructive operation is the last thing in the section and sits behind its own divider, so
+   it is never read as one more ordinary preference. The colour still comes from .btn--destructive;
+   nothing here repaints the row. */
+.settings-options--danger {
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--border);
+}
+
 @media (min-width: 64rem) {
   .settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-24);
+  }
+}
+
+@media (max-width: 30rem) {
+  /* A labelled action needs the full width at this size; a switch does not, and keeping it beside
+     its label is what makes the row still readable as a toggle. */
+  .settings-option:not(.settings-option--switch) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-option__value {
+    text-align: left;
+  }
+
+  .settings-option__action {
+    justify-self: stretch;
   }
 }

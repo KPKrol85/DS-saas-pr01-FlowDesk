@@ -24,8 +24,11 @@
   gap: var(--space-4);
 }
 
+/* Still the loudest element on the page after the h1, and one size below it so four metrics no
+   longer read as four page titles. Weight, tabular figures and the empty row above it carry the
+   emphasis instead of size alone. */
 .kpi__value {
-  font-size: var(--fs-24);
+  font-size: var(--fs-20);
   font-variant-numeric: tabular-nums;
   font-weight: var(--fw-bold);
   line-height: 1.1;
@@ -40,12 +43,13 @@
 
 /* The value is the primary information, the label names the metric and the hint qualifies it.
    The card therefore holds the label and the hint together as one tight text block and keeps a
-   deliberate gap above it, so the number reads as a separate element instead of a fourth line. */
+   deliberate gap above it, so the number reads as a separate element instead of a third line.
+   The `1fr` top row absorbs whatever height the tallest card in the row sets, which is what keeps
+   the four labels on one optical line — no card declares a height of its own. */
 .dashboard-kpi__card {
   align-content: stretch;
   grid-template-rows: 1fr auto auto;
   row-gap: var(--space-2);
-  min-height: 8rem;
 }
 
 .dashboard-kpi__card .kpi__value {
@@ -60,16 +64,19 @@
   line-height: 1.35;
 }
 
+/* A hairline of category colour rather than a coloured header: every one of the four cards carries
+   an accent, so the accent has to stay quiet enough to be read as a category and not as an alarm.
+   The number and its label carry the actual state. */
 .dashboard-kpi__card--attention {
-  border-top: 3px solid var(--warning);
+  border-top: 2px solid var(--warning);
 }
 
 .dashboard-kpi__card--success {
-  border-top: 3px solid var(--success);
+  border-top: 2px solid var(--success);
 }
 
 .dashboard-kpi__card--info {
-  border-top: 3px solid var(--info);
+  border-top: 2px solid var(--info);
 }
 
 .dashboard-list__item {
@@ -79,21 +86,40 @@
 
 .dashboard-list__main {
   display: grid;
-  gap: var(--space-8);
+  gap: var(--space-6);
+  min-width: 0;
 }
 
 .dashboard-list__link {
   color: var(--text);
+  min-width: 0;
+}
+
+/* The strongest information in the row, at the same size and weight the Clients list and the
+   Projects card give a record title. */
+.dashboard-list__title {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
+/* The due date is the actionable value of the row, so it keeps full-strength text and the medium
+   weight the Projects card uses for the same field. Size and colour still come from .data-meta. */
 .dashboard-list__meta {
+  color: var(--text);
   font-weight: var(--fw-medium);
 }
 
+/* Date and state belong to one line whenever the row is wide enough; they wrap onto two only when
+   the column is genuinely too narrow. Previously they were two stacked grid rows separated by a
+   full 16px, which stretched every row for no added information. */
 .dashboard-list__footer {
-  display: grid;
-  gap: var(--space-16);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6) var(--space-12);
+  min-width: 0;
 }
 
 .dashboard-list__badge-group {
@@ -103,10 +129,10 @@
   gap: var(--space-6);
 }
 
+/* Quiet by design: this is navigation to a record, not a workflow action. Size, weight and icon
+   dimensions come from .btn--micro; only the placement belongs to the list. */
 .dashboard-list__action {
   place-self: end end;
-  padding: var(--space-8) var(--space-12);
-  font-size: var(--fs-12);
   white-space: nowrap;
 }
 
@@ -114,13 +140,12 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   column-gap: var(--space-16);
-  padding-block: var(--space-16);
+  padding-block: var(--space-12);
 }
 
-.dashboard-card--priority .dashboard-list__item,
 .dashboard-card--events .dashboard-list__item {
-  gap: var(--space-16);
-  padding-block: var(--space-16);
+  gap: var(--space-12);
+  padding-block: var(--space-12);
 }
 
 .dashboard-list__item.dashboard-list__item--overdue {
@@ -149,6 +174,12 @@
   padding: var(--space-20);
 }
 
+/* One density step tighter than the default 16px list rhythm, so a four- or five-row operational
+   panel can be scanned without scrolling. */
+.dashboard-list {
+  gap: var(--space-10);
+}
+
 @media (min-width: 43.75rem) {
   .dashboard-kpi {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -173,17 +204,13 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .dashboard-kpi__card {
-    min-height: 8.5rem;
-  }
-
   /* The events card is the only full-width card in the dashboard grid, so a single column of
      items leaves a wide empty gutter inside each one. Two equal tracks use that width. Source
      order is untouched, so events keep reading left to right and then top to bottom, and an odd
      count leaves the last item in the first column at its natural width. */
   .dashboard-card--events .dashboard-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-12) var(--space-16);
+    gap: var(--space-10) var(--space-16);
   }
 
   /* The empty state is not an event item and would otherwise sit in half the available width. */
@@ -203,12 +230,7 @@
     grid-template-rows: none;
     align-items: center;
     gap: var(--space-8);
-    padding: var(--space-20);
-    min-height: 0;
-  }
-
-  .kpi__value {
-    font-size: var(--fs-20);
+    padding: var(--space-16);
   }
 
   /* The compact card puts the value beside the label instead of above it, so the vertical
@@ -224,5 +246,15 @@
 
   .dashboard-list__item {
     align-items: stretch;
+  }
+
+  /* The detail action returns to the flow under the record instead of being pinned to a column
+     that no longer exists once the row stacks. */
+  .dashboard-list__item.dashboard-list__item--with-action {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-list__action {
+    place-self: auto start;
   }
 }

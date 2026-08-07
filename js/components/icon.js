@@ -24,6 +24,9 @@ const icons = Object.freeze({
   chevronDown: '<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />',
   search: '<circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path>',
   export: '<path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path>',
+  // The mirror of `export`: same baseline, arrow reversed. Import previously reused the export
+  // icon, so the two opposite data actions in Settings rendered the identical downward arrow.
+  import: '<path d="M12 15V3"></path><path d="m7 8 5-5 5 5"></path><path d="M5 21h14"></path>',
   reset: '<path d="M4 12a8 8 0 1 0 3-6.2"></path><path d="M4 4v6h6"></path>',
   theme: '<path d="M21 12.8A8 8 0 1 1 11.2 3 6 6 0 0 0 21 12.8Z"></path>',
   moon: '<path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />',

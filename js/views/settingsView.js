@@ -8,7 +8,26 @@ import { setFieldError, textareaField } from '../components/formControls.js';
 import { openConfirmDialog } from '../components/confirmDialog.js';
 import { pageHeader } from '../components/pageHeader.js';
 import { showToast } from '../components/toast.js';
-import { escapeHTML } from '../utils/sanitize.js';
+import { escapeAttribute, escapeHTML } from '../utils/sanitize.js';
+
+// One row of the settings surface: the option name is what is scanned, the explanation stays a tier
+// quieter underneath it and the control or value always lands on the same trailing edge.
+const settingsSwitch = ({ id, name, description, checked }) => `
+  <div class="settings-option settings-option--switch">
+    <div class="settings-option__text">
+      <label class="settings-option__name" for="${escapeAttribute(id)}">${escapeHTML(name)}</label>
+      <p class="input__helper settings-option__desc" id="${escapeAttribute(`${id}Desc`)}">${escapeHTML(description)}</p>
+    </div>
+    <input class="settings-option__control" type="checkbox" id="${escapeAttribute(id)}" aria-describedby="${escapeAttribute(`${id}Desc`)}" ${checked ? 'checked' : ''} />
+  </div>
+`;
+
+const settingsFact = (label, value) => `
+  <div class="settings-option">
+    <dt class="settings-option__name">${escapeHTML(label)}</dt>
+    <dd class="settings-option__value">${escapeHTML(value)}</dd>
+  </div>
+`;
 
 export const renderSettingsView = (container) => {
   const ui = selectUiPreferences(store.getState());
@@ -19,54 +38,81 @@ export const renderSettingsView = (container) => {
       ${pageHeader({ title: 'Ustawienia', description: 'Zarządzaj profilem demo, preferencjami i lokalnymi danymi demonstracyjnymi.' })}
 
       <section class="settings-grid">
-        <div class="card">
-          <h2 class="card__title">Profil</h2>
-          <div class="list">
-            <div><strong>Imię i nazwisko:</strong> ${escapeHTML(session?.user?.name || 'Alicja Maj')}</div>
-            <div><strong>Organizacja:</strong> ${escapeHTML(session?.organization?.name || 'FlowDesk Demo Workspace')}</div>
-            <div><strong>Rola:</strong> ${escapeHTML(session?.membership?.role || session?.role || 'Owner')}</div>
-            <div><strong>Email:</strong> ${escapeHTML(session?.user?.email || session?.email || 'alicja@flowdesk.pl')}</div>
+        <section class="card data-panel settings-section" aria-labelledby="settings-preferences-title">
+          <div class="settings-section__head">
+            <h2 class="card__title" id="settings-preferences-title">Wygląd i preferencje</h2>
+            <p class="input__helper">Ustawienia interfejsu zapisane lokalnie w tej przeglądarce.</p>
           </div>
-          <p class="input__helper">Dane profilu są przykładowe i pokazują przyszły kontekst zespołu.</p>
-        </div>
+          <div class="settings-options">
+            ${settingsSwitch({
+              id: 'themeSwitch',
+              name: 'Motyw ciemny',
+              description: 'Przełącza ciemną paletę w całej aplikacji.',
+              checked: ui.theme === 'dark'
+            })}
+            ${settingsSwitch({
+              id: 'motionSwitch',
+              name: 'Ogranicz animacje',
+              description: 'Skraca przejścia i animacje interfejsu.',
+              checked: ui.reducedMotion
+            })}
+          </div>
+        </section>
 
-        <div class="card">
-          <h2 class="card__title">Preferencje</h2>
-          <div class="list">
-            <label class="list__item">
-              <span>Motyw ciemny</span>
-              <input type="checkbox" id="themeSwitch" ${ui.theme === 'dark' ? 'checked' : ''} />
-            </label>
-            <label class="list__item">
-              <span>Ogranicz animacje</span>
-              <input type="checkbox" id="motionSwitch" ${ui.reducedMotion ? 'checked' : ''} />
-            </label>
+        <section class="card data-panel settings-section" aria-labelledby="settings-account-title">
+          <div class="settings-section__head">
+            <h2 class="card__title" id="settings-account-title">Konto demo</h2>
+            <p class="input__helper">Dane profilu są przykładowe i pokazują przyszły kontekst zespołu.</p>
           </div>
-        </div>
+          <dl class="settings-options">
+            ${settingsFact('Imię i nazwisko', session?.user?.name || 'Alicja Maj')}
+            ${settingsFact('Organizacja', session?.organization?.name || 'FlowDesk Demo Workspace')}
+            ${settingsFact('Rola', session?.membership?.role || session?.role || 'Owner')}
+            ${settingsFact('Email', session?.user?.email || session?.email || 'alicja@flowdesk.pl')}
+          </dl>
+        </section>
       </section>
 
-      <section class="card">
-        <h2 class="card__title">Lokalne dane demo</h2>
-        <div class="list">
-          ${button({ label: 'Eksportuj lokalny JSON', id: 'exportData', variant: 'secondary', iconName: 'export' })}
-          ${button({ label: 'Resetuj dane demo', id: 'resetData', variant: 'secondary', iconName: 'reset', className: 'btn--destructive' })}
+      <section class="card data-panel settings-section" aria-labelledby="settings-data-title">
+        <div class="settings-section__head">
+          <h2 class="card__title" id="settings-data-title">Lokalne dane demo</h2>
+          <p class="input__helper">Eksport, import i przywracanie zestawu demo zapisanego w tej przeglądarce.</p>
         </div>
-        <p class="input__helper">Eksport pobiera aktualny lokalny stan demo jako plik JSON. Reset usuwa zmiany zapisane w tej przeglądarce i przywraca dane startowe.</p>
-      </section>
 
-      <section class="card">
-        <h2 class="card__title">Import lokalnego JSON</h2>
-        <form id="importForm" class="form-grid settings-import-form">
-          ${textareaField({
-            id: 'jsonImport',
-            label: 'Dane JSON',
-            rows: 8,
-            placeholder: '{ "clients": [], "projects": [], "events": [] }',
-            helper: 'Wklej pełny eksport FlowDesk JSON. Import zostanie sprawdzony przed zastąpieniem lokalnych danych demo.'
-          })}
-          ${button({ label: 'Sprawdź i importuj JSON', type: 'submit', variant: 'secondary', iconName: 'export' })}
-        </form>
-        <p class="input__helper">Nie importuj danych poufnych. Niepoprawny JSON zostanie odrzucony, a odzyskiwalne brakujące powiązania zostaną bezpiecznie odłączone.</p>
+        <div class="settings-options">
+          <div class="settings-option">
+            <div class="settings-option__text">
+              <span class="settings-option__name">Eksport lokalnego stanu</span>
+              <p class="input__helper settings-option__desc">Pobiera aktualny lokalny stan demo jako plik JSON.</p>
+            </div>
+            ${button({ label: 'Eksportuj lokalny JSON', id: 'exportData', variant: 'secondary', iconName: 'export', className: 'btn--compact settings-option__action' })}
+          </div>
+        </div>
+
+        <div class="settings-subsection">
+          <h3 class="settings-subsection__title">Import lokalnego JSON</h3>
+          <form id="importForm" class="form-grid settings-import-form">
+            ${textareaField({
+              id: 'jsonImport',
+              label: 'Dane JSON',
+              rows: 8,
+              placeholder: '{ "clients": [], "projects": [], "events": [] }',
+              helper: 'Wklej pełny eksport FlowDesk JSON. Import zostanie sprawdzony przed zastąpieniem lokalnych danych demo.'
+            })}
+            ${button({ label: 'Sprawdź i importuj JSON', type: 'submit', variant: 'secondary', iconName: 'import', className: 'btn--compact settings-import-form__submit' })}
+          </form>
+          <p class="input__helper">Nie importuj danych poufnych. Niepoprawny JSON zostanie odrzucony, a odzyskiwalne brakujące powiązania zostaną bezpiecznie odłączone.</p>
+        </div>
+
+        <div class="settings-options settings-options--danger">
+          <div class="settings-option">
+            <div class="settings-option__text">
+              <span class="settings-option__name">Reset danych demo</span>
+              <p class="input__helper settings-option__desc">Usuwa zmiany zapisane w tej przeglądarce i przywraca dane startowe. Operacja jest potwierdzana i nie można jej cofnąć.</p>
+            </div>
+            ${button({ label: 'Resetuj dane demo', id: 'resetData', variant: 'secondary', iconName: 'reset', className: 'btn--destructive btn--compact settings-option__action' })}
+          </div>
+        </div>
       </section>
     </main>
   `;

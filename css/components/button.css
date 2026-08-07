@@ -64,6 +64,37 @@
   font-weight: var(--fw-medium);
 }
 
+/* One step below .btn--compact, for the quiet actions that live inside a card or a list row and
+   must not compete with the record title next to them. The Projects card footer, the Calendar
+   delete action and the Dashboard detail link each re-declared the same padding, size and icon
+   dimensions in their own stylesheet; the size now belongs to the button. Size only, so it still
+   composes with --ghost, --secondary and --destructive. */
+.btn--micro {
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+}
+
+.btn--micro .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* The micro size is a pointer-density choice. Touch layouts get a usable target back — the same
+   ~38px the Clients row actions and the record header actions use — without losing the label. */
+@media (max-width: 43.75rem) {
+  .btn--micro {
+    padding: var(--space-10) var(--space-12);
+    font-size: var(--fs-13);
+  }
+
+  .btn--micro .icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
 .btn--icon {
   padding: var(--space-8);
   border-radius: var(--radius-md);
